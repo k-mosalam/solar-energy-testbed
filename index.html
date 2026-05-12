@@ -466,6 +466,47 @@
       background: white;
     }
 
+    .placeholder-figure {
+  padding: 0;
+  overflow: hidden;
+}
+
+.image-placeholder {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, #f4f7fb, #ffffff);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  padding: 2rem;
+}
+
+.placeholder-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--cal-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.image-placeholder h3 {
+  margin: 0 0 0.4rem;
+  color: var(--berkeley-blue);
+}
+
+.image-placeholder p {
+  max-width: 360px;
+  margin: 0;
+  color: var(--muted);
+}
+    
     .status {
       border-left: 5px solid var(--cal-gold);
       padding-left: 1rem;
@@ -822,15 +863,18 @@
             </figcaption>
           </figure>
 
-          <figure class="card">
-            <img
-              src="assets/arm%20(1).png"
-              alt="Rendered robotic arm configuration for sensor positioning"
-            />
-            <figcaption class="image-caption">
-              Modeled arm configuration for sensor placement and future viewpoint planning.
-            </figcaption>
-          </figure>
+<figure class="card placeholder-figure">
+  <div class="image-placeholder">
+    <div class="placeholder-icon">⚙️</div>
+    <h3>Articulated Arm CAD Placeholder</h3>
+    <p>
+      Placeholder for future CAD rendering of the articulated LiDAR sensing arm.
+    </p>
+  </div>
+  <figcaption class="image-caption">
+    Future CAD concept of an articulated sensing arm for controlled LiDAR pose adjustment.
+  </figcaption>
+</figure>
         </div>
 
         <div class="grid two" style="margin-top: 1.25rem;">
