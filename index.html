@@ -375,8 +375,6 @@
        border-left: 5px solid var(--cal-gold);
        padding-left: 1rem;
     }
-    
-
 
     .rover-visual-grid {
       display: grid;
@@ -551,6 +549,7 @@
 
       <div class="nav-links">
         <a href="#overview">Overview</a>
+        <a href="#paper">Background Paper</a>
         <a href="#testbed">Testbed</a>
         <a href="#monitoring">Monitoring</a>
         <a href="#energy">Energy Generation</a>
@@ -940,6 +939,70 @@
       </div>
     </section>
 
+    <section id="paper" class="soft">
+  <div class="container">
+    <div class="section-head">
+      <div class="label">Background Paper</div>
+      <h2>Conference paper describing the rover-based monitoring framework.</h2>
+      <p class="muted">
+        Additional technical background is provided in the conference paper:
+        <em>A LiDAR-Enabled Ground Rover Framework for Smart Monitoring in
+        Utility-Scale Solar Power Systems: Design and Preliminary Validation</em>.
+        The paper describes the motivation, system architecture, LiDAR/SLAM workflow,
+        articulated arm concept, portable PV testbed, and planned validation pathway.
+      </p>
+    </div>
+
+    <div class="grid two">
+      <article class="card highlight">
+        <h3>Why this paper is relevant</h3>
+        <p>
+          The paper explains the need for spatial and geometric monitoring of solar farms,
+          especially because some early-stage anomalies may not be immediately visible in
+          electrical performance data. These include panel displacement, frame deformation,
+          vegetation encroachment, terrain change, and post-event structural changes.
+        </p>
+      </article>
+
+      <article class="card highlight">
+        <h3>What the paper covers</h3>
+        <ul class="feature-list">
+          <li>Ground rover architecture for utility-scale PV inspection.</li>
+          <li>LiDAR-based point-cloud acquisition and 3D reconstruction.</li>
+          <li>FAST-LIO2/SLAM and waypoint-based autonomous navigation.</li>
+          <li>Articulated arm concept for improved sensor viewpoints.</li>
+          <li>Portable PV testbed for future field validation.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="card" style="margin-top: 1.25rem;">
+      <h3>Download the paper</h3>
+      <p class="muted">
+        The PDF provides more detailed background on the proposed robotic inspection
+        system, the preliminary laboratory validation, and the planned use of the portable
+        solar-energy testbed for outdoor experiments.
+      </p>
+
+      <p class="muted" style="margin-top: 1rem;">
+  Citation: Omar Shabana and Khalid M. Mosalam,
+  <em>A LiDAR-Enabled Ground Rover Framework for Smart Monitoring in
+  Utility-Scale Solar Power Systems: Design and Preliminary Validation</em>,
+  conference draft.
+</p>
+      
+      <a
+        class="button primary"
+        href="assets/rover-solar-monitoring-paper.pdf"
+        target="_blank"
+        rel="noopener"
+      >
+        Open Background Paper PDF
+      </a>
+    </div>
+  </div>
+</section>
+    
     <section id="environmental">
       <div class="container">
         <div class="section-head">
