@@ -371,6 +371,11 @@
       margin-bottom: 0.4rem;
     }
 
+    .rover-note {
+       border-left: 5px solid var(--cal-gold);
+       padding-left: 1rem;
+    }
+    
     .status {
       border-left: 5px solid var(--cal-gold);
       padding-left: 1rem;
@@ -418,6 +423,7 @@
         <a href="#testbed">Testbed</a>
         <a href="#monitoring">Monitoring</a>
         <a href="#energy">Energy Generation</a>
+        <a href="#rover">Robotic Inspection</a>
         <a href="#environmental">Environmental Impacts</a>
         <a href="#team">Team</a>
         <a href="#acknowledgements">Acknowledgements</a>
@@ -623,6 +629,88 @@
       </div>
     </section>
 
+<section id="rover">
+  <div class="container">
+    <div class="section-head">
+      <div class="label">Robotic Inspection</div>
+      <h2>LiDAR-enabled rover for spatial monitoring of solar infrastructure.</h2>
+      <p class="muted">
+        The solar energy testbed is being integrated with a ground-based robotic inspection
+        framework that uses LiDAR, SLAM, and repeatable navigation to monitor geometric
+        and structural changes in photovoltaic systems. This capability complements electrical
+        monitoring by detecting physical changes that may occur before they are clearly visible
+        in the inverter data.
+      </p>
+    </div>
+
+    <div class="grid three">
+      <article class="card highlight">
+        <h3>Ground mobility</h3>
+        <p>
+          A four-wheel-drive unmanned ground vehicle can move through solar-array rows and
+          provide close-range inspection of panels, frames, supports, terrain, and vegetation.
+        </p>
+      </article>
+
+      <article class="card highlight">
+        <h3>LiDAR and SLAM</h3>
+        <p>
+          A Livox Mid-360 LiDAR sensor and SLAM-based mapping workflow generate dense
+          three-dimensional point clouds for geometric inspection and change detection.
+        </p>
+      </article>
+
+      <article class="card highlight">
+        <h3>Articulated sensing</h3>
+        <p>
+          An articulated sensor mount improves viewpoint flexibility and helps reduce occlusion,
+          especially for under-panel areas, support members, and rack geometry.
+        </p>
+      </article>
+    </div>
+
+    <div class="grid two" style="margin-top: 1.25rem;">
+      <article class="card">
+        <div class="label">Inspection Targets</div>
+        <h3>What the rover can help detect</h3>
+        <ul class="feature-list">
+          <li>Panel displacement, tilt change, or misalignment.</li>
+          <li>Frame deformation and support movement after wind or impact events.</li>
+          <li>Vegetation encroachment and obstruction near panel rows.</li>
+          <li>Terrain settlement, surface change, and clearance reduction.</li>
+          <li>Repeatable geometric change between inspection cycles.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <div class="label">Workflow</div>
+        <h3>From scanning to decision support</h3>
+        <ul class="feature-list">
+          <li>Navigate to predefined inspection waypoints.</li>
+          <li>Acquire LiDAR scans from multiple viewpoints.</li>
+          <li>Register scans into a three-dimensional point cloud.</li>
+          <li>Compare repeated scans to identify geometric changes.</li>
+          <li>Integrate spatial observations with inverter and environmental data.</li>
+        </ul>
+      </article>
+    </div>
+
+   <div class="card highlight rover-note" style="margin-top: 1.25rem;">
+      <div class="label">Research Context</div>
+      <h3>Connection to conference paper</h3>
+      <p>
+        This robotic inspection concept builds on the framework described in the conference
+        paper, “A LiDAR-Enabled Ground Rover Framework for Smart Monitoring in
+        Utility-Scale Solar Power Systems: Design and Preliminary Validation.” The paper
+        presents the rover architecture, the motivation for articulated LiDAR sensing, and the
+        planned validation pathway linking laboratory calibration, controlled testing, and
+        outdoor deployment using the portable PV testbed.
+      </p>
+    </div>
+  </div>
+</section>
+
+    
     <section id="environmental">
       <div class="container">
         <div class="section-head">
