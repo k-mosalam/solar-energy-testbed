@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Solar Energy Testbed for Operational Monitoring | UC Berkeley</title>
   <meta name="description" content="A UC Berkeley solar energy testbed for monitoring PV structural, geometric, electrical, and environmental performance under realistic operating conditions." />
+
   <style>
     :root {
       --berkeley-blue: #003262;
@@ -253,23 +254,38 @@
     .photo-card {
       overflow: hidden;
       padding: 0;
+      background: #ffffff;
     }
 
-.photo-card {
-  overflow: hidden;
-  padding: 0;
-  background: #ffffff;
-}
+    .photo-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.1rem;
+      padding: 1.1rem;
+      background: #ffffff;
+    }
 
-.photo-card img {
-  width: 50%;
-  height: auto;
-  max-height: 520px;
-  object-fit: contain;
-  object-position: center center;
-  display: block;
-  background: #ffffff;
-}
+    .photo-stack img {
+      height: auto;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .photo-stack .frame-photo {
+      width: 50%;
+      max-width: 360px;
+      min-width: 220px;
+    }
+
+    .photo-stack .testbed-photo {
+      width: 100%;
+      max-height: 520px;
+    }
 
     .caption {
       font-size: 0.88rem;
@@ -277,6 +293,7 @@
       padding: 0.8rem 1rem 1rem;
       background: white;
       border-top: 1px solid var(--line);
+      width: 100%;
     }
 
     .flow {
@@ -305,6 +322,45 @@
       background: var(--cal-gold);
       font-weight: 900;
       margin-bottom: 0.75rem;
+    }
+
+    .energy-meter {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .meter-value {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      color: var(--berkeley-blue);
+      font-weight: 950;
+      letter-spacing: -0.06em;
+      margin: 0.45rem 0;
+    }
+
+    .meter-unit {
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 800;
+      margin-left: 0.25rem;
+    }
+
+    .meter-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .chart-wrap {
+      padding: 1.2rem;
+    }
+
+    #energyChart {
+      width: 100%;
+      min-height: 280px;
+      display: block;
     }
 
     .team-card a { font-weight: 750; }
@@ -339,11 +395,16 @@
       .nav { align-items: flex-start; flex-direction: column; }
       .nav-links { justify-content: flex-start; }
       .hero { min-height: 620px; }
-      .grid.two, .grid.three, .grid.four, .flow { grid-template-columns: 1fr; }
+      .grid.two, .grid.three, .grid.four, .flow, .energy-meter { grid-template-columns: 1fr; }
       main section { padding: 3.3rem 1.1rem; }
+
+      .photo-stack .frame-photo {
+        width: 75%;
+      }
     }
   </style>
 </head>
+
 <body>
   <header class="topbar">
     <nav class="nav" aria-label="Main navigation">
@@ -351,10 +412,12 @@
         <span class="brand-mark" aria-hidden="true"></span>
         <span>UC Berkeley Solar Energy Testbed</span>
       </a>
+
       <div class="nav-links">
         <a href="#overview">Overview</a>
         <a href="#testbed">Testbed</a>
         <a href="#monitoring">Monitoring</a>
+        <a href="#energy">Energy Generation</a>
         <a href="#environmental">Environmental Impacts</a>
         <a href="#team">Team</a>
         <a href="#acknowledgements">Acknowledgements</a>
@@ -371,7 +434,7 @@
       </p>
       <div class="hero-actions">
         <a class="button primary" href="#testbed">Explore the Testbed</a>
-        <a class="button secondary" href="#team">Meet the Team</a>
+        <a class="button secondary" href="#energy">View Energy Meter</a>
       </div>
     </div>
   </section>
@@ -386,15 +449,18 @@
             The platform is designed to support controlled and repeatable experiments on photovoltaic asset health, electrical performance, and structural behavior. It will help quantify how environmental and mechanical stressors change the operational behavior of PV systems and how these changes can be detected earlier using integrated sensing.
           </p>
         </div>
+
         <div class="grid three">
           <article class="card highlight">
             <h3>Electrical operation</h3>
             <p>String-level inverter data will be used to monitor voltage, current, power, and energy during controlled exposure cycles.</p>
           </article>
+
           <article class="card highlight">
             <h3>Structural condition</h3>
             <p>The testbed will track deformation, frame drift, connection loosening, and dynamic response under realistic and extreme loading conditions.</p>
           </article>
+
           <article class="card highlight">
             <h3>Digital-twin datasets</h3>
             <p>Geometric, structural, environmental, and electrical data streams will support digital-twin development and field-informed performance models.</p>
@@ -412,22 +478,26 @@
             <p>
               The testbed uses utility-scale thin-film CdTe photovoltaic modules and an inverter architecture selected to match their high-voltage, low-current behavior. The configuration is intended to remain flexible as the research evolves from initial deployment to expanded experimental configurations.
             </p>
+
             <div class="grid two" style="margin-top: 1.2rem;">
               <div class="card">
                 <div class="metric">2</div>
                 <strong>modules per string</strong>
                 <p class="muted">Series-connected pairs form the fundamental electrical unit.</p>
               </div>
+
               <div class="card">
                 <div class="metric">3</div>
                 <strong>MPPT channels</strong>
                 <p class="muted">Independent string-level monitoring and operational flexibility.</p>
               </div>
+
               <div class="card">
                 <div class="metric">6+</div>
                 <strong>initial modules</strong>
                 <p class="muted">Expandable for future test configurations and added storage studies.</p>
               </div>
+
               <div class="card">
                 <div class="metric">RFS</div>
                 <strong>deployment setting</strong>
@@ -435,9 +505,25 @@
               </div>
             </div>
           </div>
+
           <figure class="card photo-card">
-            <img src="assets/solar-testbed-under-construction.jpeg" alt="Solar panel testbed under construction inside a laboratory space" />
-            <figcaption class="caption">Solar-panel testbed hardware under preparation for controlled experimental deployment.</figcaption>
+            <div class="photo-stack">
+              <img
+                class="frame-photo"
+                src="assets/IMG_0496.jpeg"
+                alt="Mobile steel support frame for the solar energy testbed"
+              />
+
+              <img
+                class="testbed-photo"
+                src="assets/solar-testbed-under-construction.jpeg"
+                alt="Solar panel testbed hardware under construction inside a laboratory space"
+              />
+            </div>
+
+            <figcaption class="caption">
+              Mobile support frame and solar-panel testbed hardware under preparation for controlled experimental deployment.
+            </figcaption>
           </figure>
         </div>
       </div>
@@ -452,27 +538,32 @@
             The monitoring approach combines electrical measurements, environmental data, structural response, and robotic spatial mapping. The objective is not only to measure PV output, but also to understand the physical causes of performance degradation.
           </p>
         </div>
+
         <div class="flow" aria-label="Monitoring workflow">
           <div class="flow-step">
             <div class="num">1</div>
             <h3>Expose</h3>
             <p>Subject panels and frame to controlled environmental and mechanical conditions.</p>
           </div>
+
           <div class="flow-step">
             <div class="num">2</div>
             <h3>Measure</h3>
             <p>Collect inverter, temperature, humidity, irradiance, vibration, and geometric data.</p>
           </div>
+
           <div class="flow-step">
             <div class="num">3</div>
             <h3>Scan</h3>
             <p>Use LiDAR-enabled robotic inspection to capture point clouds and repeated geometry.</p>
           </div>
+
           <div class="flow-step">
             <div class="num">4</div>
             <h3>Compare</h3>
             <p>Quantify changes in panel surfaces, frame alignment, support drift, and obstructions.</p>
           </div>
+
           <div class="flow-step">
             <div class="num">5</div>
             <h3>Predict</h3>
@@ -482,7 +573,57 @@
       </div>
     </section>
 
-    <section id="environmental" class="soft">
+    <section id="energy" class="soft">
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Live Placeholder</div>
+          <h2>Energy generation with time.</h2>
+          <p class="muted">
+            This section currently displays simulated real-time photovoltaic generation data.
+            The placeholder can later be connected to the inverter, data-acquisition system,
+            or cloud data stream from the solar energy testbed.
+          </p>
+        </div>
+
+        <div class="energy-meter">
+          <article class="card highlight">
+            <h3>Current Simulated Power</h3>
+            <div class="meter-value">
+              <span id="current-power">--</span><span class="meter-unit">W</span>
+            </div>
+            <p class="meter-note">Temporary randomized value updated every few seconds.</p>
+          </article>
+
+          <article class="card highlight">
+            <h3>Cumulative Simulated Energy</h3>
+            <div class="meter-value">
+              <span id="cumulative-energy">--</span><span class="meter-unit">kWh</span>
+            </div>
+            <p class="meter-note">Approximate simulated energy accumulated during this page session.</p>
+          </article>
+
+          <article class="card highlight">
+            <h3>Simulated Inverter Status</h3>
+            <div class="meter-value">
+              <span id="inverter-status">Online</span>
+            </div>
+            <p class="meter-note">Placeholder status for future inverter data-stream integration.</p>
+          </article>
+        </div>
+
+        <div class="card chart-wrap">
+          <h3>Simulated Energy-Generation Trend</h3>
+          <canvas id="energyChart" height="280" aria-label="Simulated energy generation chart"></canvas>
+          <p class="muted" style="margin-top: 0.8rem;">
+            Note: These are temporary simulated values for demonstration only. They should be
+            replaced with measured data from the inverter or monitoring system once the live
+            data stream is available.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="environmental">
       <div class="container">
         <div class="section-head">
           <div class="label">Environmental Impacts</div>
@@ -491,27 +632,33 @@
             The testbed will support multi-phenomena studies that link field exposure to performance loss, structural response, and functional recovery.
           </p>
         </div>
+
         <div class="grid three">
           <article class="card">
             <h3>Soiling and cleaning</h3>
             <p>Dust accumulation, coating durability, and response to air, water, or pulsed-jet cleaning systems.</p>
           </article>
+
           <article class="card">
             <h3>Thermal effects</h3>
             <p>Temperature-driven performance variation, thermal cycling, and temperature-related degradation patterns.</p>
           </article>
+
           <article class="card">
             <h3>Shading and vegetation</h3>
             <p>Vegetation encroachment, surface obstruction, and partial shading effects on string-level performance.</p>
           </article>
+
           <article class="card">
             <h3>Wind and vibration</h3>
             <p>Frame movement, panel displacement, connection loosening, and dynamic response under mechanical excitation.</p>
           </article>
+
           <article class="card">
             <h3>Hail and impact</h3>
             <p>Localized impact scenarios to evaluate geometric changes, structural vulnerabilities, and recovery indicators.</p>
           </article>
+
           <article class="card">
             <h3>Smoke, ash, and heat</h3>
             <p>Particulate exposure and controlled heat-flux scenarios, subject to safety review and approval.</p>
@@ -520,7 +667,7 @@
       </div>
     </section>
 
-    <section>
+    <section class="soft">
       <div class="container">
         <div class="grid two">
           <article class="card highlight">
@@ -529,6 +676,7 @@
             <p>
               A ground rover equipped with LiDAR and autonomous navigation will support repeated geometric inspection, point-cloud generation, and change detection of solar-panel surfaces, support frames, and surrounding site conditions.
             </p>
+
             <ul class="feature-list">
               <li>Autonomous waypoint navigation and obstacle avoidance.</li>
               <li>3D point-cloud mapping using LiDAR and SLAM workflows.</li>
@@ -536,12 +684,14 @@
               <li>Future integration with articulated sensing viewpoints to reduce occlusion.</li>
             </ul>
           </article>
+
           <article class="card highlight">
             <div class="label">Research Outcomes</div>
             <h2>Data for resilient solar infrastructure</h2>
             <p>
               The testbed is intended to produce high-quality datasets for solar-farm O&amp;M, reliability-centered monitoring, and digital twins. These datasets can support asset-health indicators, performance derating models, and more resilient planning for PV infrastructure.
             </p>
+
             <div class="pill-list">
               <span class="pill">Asset health</span>
               <span class="pill">Functional recovery</span>
@@ -555,29 +705,35 @@
       </div>
     </section>
 
-    <section id="team" class="soft">
+    <section id="team">
       <div class="container">
         <div class="section-head">
           <div class="label">Personnel</div>
           <h2>Project team</h2>
-          <p class="muted">UC Berkeley personnel contributing to the solar energy testbed, operational monitoring, digital-twin, and robotic inspection activities.</p>
+          <p class="muted">
+            UC Berkeley personnel contributing to the solar energy testbed, operational monitoring, digital-twin, and robotic inspection activities.
+          </p>
         </div>
+
         <div class="grid four">
           <article class="card team-card">
             <h3>Khalid M. Mosalam</h3>
             <div class="team-role">Principal Investigator</div>
             <a href="mailto:mosalam@berkeley.edu">mosalam@berkeley.edu</a>
           </article>
+
           <article class="card team-card">
             <h3>Omar Shabana</h3>
             <div class="team-role">PhD Student</div>
             <a href="mailto:omar_shabana@berkeley.edu">omar_shabana@berkeley.edu</a>
           </article>
+
           <article class="card team-card">
             <h3>Naiqi Guo</h3>
             <div class="team-role">MS Student</div>
             <a href="mailto:naming201@berkeley.edu">naming201@berkeley.edu</a>
           </article>
+
           <article class="card team-card">
             <h3>Jiawei Chen</h3>
             <div class="team-role">Postdoctoral Researcher</div>
@@ -587,19 +743,42 @@
       </div>
     </section>
 
-   <section id="acknowledgements" class="section">
-      <div class="card">
-        <h2>Acknowledgements</h2>
-      <p>
-         The development of this solar energy testbed is supported in part through collaboration
-         and engagement with
-      <a href="https://nextpower.com/" target="_blank" rel="noopener">NextPower</a>
-         and
-      <a href="https://cal-next.berkeley.edu/" target="_blank" rel="noopener">Cal-Next</a>.
-         Their support and partnership are gratefully acknowledged.
-      </p>
+    <section id="acknowledgements" class="soft">
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Acknowledgements</div>
+          <h2>Project support and collaboration.</h2>
+          <p class="muted">
+            The development of this solar energy testbed is supported in part through collaboration
+            and engagement with
+            <a href="https://nextpower.com/" target="_blank" rel="noopener">NextPower</a>
+            and
+            <a href="https://cal-next.berkeley.edu/" target="_blank" rel="noopener">Cal-Next</a>.
+            Their support and partnership are gratefully acknowledged.
+          </p>
+        </div>
+
+        <div class="grid two">
+          <article class="card highlight">
+            <h3>NextPower</h3>
+            <p>
+              Collaboration and engagement supporting the development of the solar energy testbed
+              and its future monitoring applications.
+            </p>
+            <a href="https://nextpower.com/" target="_blank" rel="noopener">Visit NextPower</a>
+          </article>
+
+          <article class="card highlight">
+            <h3>Cal-Next</h3>
+            <p>
+              Collaboration and engagement supporting clean-energy innovation, monitoring,
+              and research translation.
+            </p>
+            <a href="https://cal-next.berkeley.edu/" target="_blank" rel="noopener">Visit Cal-Next</a>
+          </article>
+        </div>
       </div>
-   </section>
+    </section>
 
     <section>
       <div class="container">
@@ -618,12 +797,171 @@
     <div class="container">
       <div>
         <strong>UC Berkeley Solar Energy Testbed</strong><br />
-        Operational monitoring, resilience, and functional recovery for PV infrastructure.
+        Operational monitoring, resilience, and functional recovery for PV infrastructure.<br />
+        With acknowledgment to
+        <a href="https://nextpower.com/" target="_blank" rel="noopener">NextPower</a>
+        and
+        <a href="https://cal-next.berkeley.edu/" target="_blank" rel="noopener">Cal-Next</a>.
       </div>
+
       <div>
         Contact: <a href="mailto:mosalam@berkeley.edu">mosalam@berkeley.edu</a>
       </div>
     </div>
   </footer>
+
+  <script>
+    const canvas = document.getElementById("energyChart");
+    const ctx = canvas.getContext("2d");
+
+    let powerValues = [];
+    let timeLabels = [];
+    let cumulativeEnergy = 0;
+    const updateIntervalSeconds = 3;
+
+    function resizeCanvas() {
+      const parentWidth = canvas.parentElement.clientWidth;
+      canvas.width = Math.max(300, parentWidth - 40);
+      canvas.height = 280;
+    }
+
+    function generatePowerValue() {
+      const now = new Date();
+      const hour = now.getHours() + now.getMinutes() / 60;
+
+      let daylightFactor = 0;
+
+      if (hour >= 6.5 && hour <= 18.5) {
+        daylightFactor = Math.sin(((hour - 6.5) / 12) * Math.PI);
+      }
+
+      const cloudFactor = 0.82 + Math.random() * 0.22;
+      const basePower = 950 * daylightFactor * cloudFactor;
+      const randomVariation = Math.random() * 90 - 45;
+      const simulatedPower = Math.max(0, basePower + randomVariation);
+
+      return Math.round(simulatedPower);
+    }
+
+    function drawChart() {
+      resizeCanvas();
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const paddingLeft = 55;
+      const paddingRight = 25;
+      const paddingTop = 30;
+      const paddingBottom = 45;
+
+      const chartWidth = canvas.width - paddingLeft - paddingRight;
+      const chartHeight = canvas.height - paddingTop - paddingBottom;
+
+      ctx.strokeStyle = "#d9e2ec";
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i <= 4; i++) {
+        const y = paddingTop + (chartHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(paddingLeft, y);
+        ctx.lineTo(canvas.width - paddingRight, y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "#5d6b7a";
+      ctx.font = "12px Arial";
+      ctx.fillText("Power (W)", paddingLeft, 18);
+      ctx.fillText("Time", canvas.width - paddingRight - 30, canvas.height - 12);
+
+      if (powerValues.length < 2) return;
+
+      const maxPower = Math.max(1000, Math.max(...powerValues) * 1.15);
+
+      ctx.fillStyle = "#5d6b7a";
+      ctx.font = "11px Arial";
+
+      for (let i = 0; i <= 4; i++) {
+        const value = Math.round(maxPower - (maxPower / 4) * i);
+        const y = paddingTop + (chartHeight / 4) * i;
+        ctx.fillText(value.toString(), 10, y + 4);
+      }
+
+      ctx.strokeStyle = "#003262";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+
+      powerValues.forEach((value, index) => {
+        const x = paddingLeft + (index / (powerValues.length - 1)) * chartWidth;
+        const y = paddingTop + chartHeight - (value / maxPower) * chartHeight;
+
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+
+      ctx.stroke();
+
+      ctx.fillStyle = "#FDB515";
+
+      powerValues.forEach((value, index) => {
+        const x = paddingLeft + (index / (powerValues.length - 1)) * chartWidth;
+        const y = paddingTop + chartHeight - (value / maxPower) * chartHeight;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+
+      if (timeLabels.length > 0) {
+        ctx.fillStyle = "#5d6b7a";
+        ctx.font = "11px Arial";
+
+        const firstLabel = timeLabels[0];
+        const lastLabel = timeLabels[timeLabels.length - 1];
+
+        ctx.fillText(firstLabel, paddingLeft, canvas.height - 20);
+        ctx.fillText(lastLabel, canvas.width - paddingRight - 75, canvas.height - 20);
+      }
+    }
+
+    function updateEnergyData() {
+      const now = new Date();
+      const timeLabel = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+
+      const currentPower = generatePowerValue();
+
+      powerValues.push(currentPower);
+      timeLabels.push(timeLabel);
+
+      if (powerValues.length > 24) {
+        powerValues.shift();
+        timeLabels.shift();
+      }
+
+      cumulativeEnergy += currentPower * updateIntervalSeconds / 3600000;
+
+      document.getElementById("current-power").textContent = currentPower;
+      document.getElementById("cumulative-energy").textContent = cumulativeEnergy.toFixed(4);
+
+      const inverterStatus = document.getElementById("inverter-status");
+      if (currentPower > 30) {
+        inverterStatus.textContent = "Online";
+      } else {
+        inverterStatus.textContent = "Standby";
+      }
+
+      drawChart();
+    }
+
+    window.addEventListener("resize", drawChart);
+
+    updateEnergyData();
+    setInterval(updateEnergyData, updateIntervalSeconds * 1000);
+  </script>
 </body>
 </html>
