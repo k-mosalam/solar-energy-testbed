@@ -376,6 +376,81 @@
        padding-left: 1rem;
     }
     
+
+
+    .rover-visual-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.25rem;
+      align-items: stretch;
+      margin: 1.5rem 0;
+    }
+
+    .rover-visual-card {
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .rover-visual-card img {
+      width: 100%;
+      height: 100%;
+      max-height: 430px;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      background: #ffffff;
+    }
+
+    .rover-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    .rover-gallery.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .rover-gallery .card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .rover-gallery img {
+      width: 100%;
+      height: auto;
+      max-height: 380px;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      background: #ffffff;
+    }
+
+    .wide-figure {
+      margin-top: 1.25rem;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .wide-figure img {
+      width: 100%;
+      height: auto;
+      max-height: 520px;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      background: #ffffff;
+    }
+
+    .image-caption {
+      font-size: 0.88rem;
+      color: var(--muted);
+      padding: 0.8rem 1rem 1rem;
+      border-top: 1px solid var(--line);
+      background: white;
+    }
+
     .status {
       border-left: 5px solid var(--cal-gold);
       padding-left: 1rem;
@@ -400,7 +475,7 @@
       .nav { align-items: flex-start; flex-direction: column; }
       .nav-links { justify-content: flex-start; }
       .hero { min-height: 620px; }
-      .grid.two, .grid.three, .grid.four, .flow, .energy-meter { grid-template-columns: 1fr; }
+      .grid.two, .grid.three, .grid.four, .flow, .energy-meter, .rover-visual-grid, .rover-gallery, .rover-gallery.three { grid-template-columns: 1fr; }
       main section { padding: 3.3rem 1.1rem; }
 
       .photo-stack .frame-photo {
@@ -523,12 +598,18 @@
               <img
                 class="testbed-photo"
                 src="assets/solar-testbed-under-construction.jpeg"
-                alt="Solar panel testbed hardware under construction inside a laboratory space"
+                alt="Solar panel testbed hardware with PV panels under construction inside a laboratory space"
+              />
+
+              <img
+                class="testbed-photo"
+                src="assets/testbed-comparison.png"
+                alt="Conceptual PV panel testbed configuration compared with the constructed mobile frame"
               />
             </div>
 
             <figcaption class="caption">
-              Mobile support frame and solar-panel testbed hardware under preparation for controlled experimental deployment.
+              Mobile support frame, assembled PV panel testbed, and conceptual configuration for controlled experimental deployment.
             </figcaption>
           </figure>
         </div>
@@ -630,87 +711,176 @@
     </section>
 
 <section id="rover">
-  <div class="container">
-    <div class="section-head">
-      <div class="label">Robotic Inspection</div>
-      <h2>LiDAR-enabled rover for spatial monitoring of solar infrastructure.</h2>
-      <p class="muted">
-        The solar energy testbed is being integrated with a ground-based robotic inspection
-        framework that uses LiDAR, SLAM, and repeatable navigation to monitor geometric
-        and structural changes in photovoltaic systems. This capability complements electrical
-        monitoring by detecting physical changes that may occur before they are clearly visible
-        in the inverter data.
-      </p>
-    </div>
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Robotic Inspection</div>
+          <h2>LiDAR-enabled rover for spatial monitoring of solar infrastructure.</h2>
+          <p class="muted">
+            The solar energy testbed is being integrated with a ground-based robotic inspection
+            framework that uses LiDAR, SLAM, and repeatable navigation to monitor geometric
+            and structural changes in photovoltaic systems. This capability complements electrical
+            monitoring by detecting physical changes that may occur before they are clearly visible
+            in the inverter data.
+          </p>
+        </div>
 
-    <div class="grid three">
-      <article class="card highlight">
-        <h3>Ground mobility</h3>
-        <p>
-          A four-wheel-drive unmanned ground vehicle can move through solar-array rows and
-          provide close-range inspection of panels, frames, supports, terrain, and vegetation.
-        </p>
-      </article>
+        <div class="rover-visual-grid">
+          <figure class="card rover-visual-card">
+            <img
+              src="assets/rover_lidar_system.jpg"
+              alt="Ground rover equipped with a LiDAR sensor for solar infrastructure inspection"
+            />
+            <figcaption class="image-caption">
+              Rover platform equipped with LiDAR for close-range spatial inspection of solar infrastructure.
+            </figcaption>
+          </figure>
 
-      <article class="card highlight">
-        <h3>LiDAR and SLAM</h3>
-        <p>
-          A Livox Mid-360 LiDAR sensor and SLAM-based mapping workflow generate dense
-          three-dimensional point clouds for geometric inspection and change detection.
-        </p>
-      </article>
+          <figure class="card rover-visual-card">
+            <img
+              src="assets/workflow.png"
+              alt="Three-phase rover inspection workflow for solar infrastructure monitoring"
+            />
+            <figcaption class="image-caption">
+              Proposed inspection workflow: deployment, station-based scanning, reconstruction,
+              change detection, anomaly logging, and maintenance prioritization.
+            </figcaption>
+          </figure>
+        </div>
 
-      <article class="card highlight">
-        <h3>Articulated sensing</h3>
-        <p>
-          An articulated sensor mount improves viewpoint flexibility and helps reduce occlusion,
-          especially for under-panel areas, support members, and rack geometry.
-        </p>
-      </article>
-    </div>
+        <div class="grid three">
+          <article class="card highlight">
+            <h3>Ground mobility</h3>
+            <p>
+              A four-wheel-drive unmanned ground vehicle can move through solar-array rows and
+              provide close-range inspection of panels, frames, supports, terrain, and vegetation.
+            </p>
+          </article>
 
-    <div class="grid two" style="margin-top: 1.25rem;">
-      <article class="card">
-        <div class="label">Inspection Targets</div>
-        <h3>What the rover can help detect</h3>
-        <ul class="feature-list">
-          <li>Panel displacement, tilt change, or misalignment.</li>
-          <li>Frame deformation and support movement after wind or impact events.</li>
-          <li>Vegetation encroachment and obstruction near panel rows.</li>
-          <li>Terrain settlement, surface change, and clearance reduction.</li>
-          <li>Repeatable geometric change between inspection cycles.</li>
-        </ul>
-      </article>
+          <article class="card highlight">
+            <h3>LiDAR and SLAM</h3>
+            <p>
+              LiDAR sensing and SLAM-based mapping generate three-dimensional point clouds for
+              geometric inspection, localization, repeat scanning, and change detection.
+            </p>
+          </article>
 
-      <article class="card">
-        <div class="label">Workflow</div>
-        <h3>From scanning to decision support</h3>
-        <ul class="feature-list">
-          <li>Navigate to predefined inspection waypoints.</li>
-          <li>Acquire LiDAR scans from multiple viewpoints.</li>
-          <li>Register scans into a three-dimensional point cloud.</li>
-          <li>Compare repeated scans to identify geometric changes.</li>
-          <li>Integrate spatial observations with inverter and environmental data.</li>
-        </ul>
-      </article>
-    </div>
+          <article class="card highlight">
+            <h3>Articulated sensing</h3>
+            <p>
+              An articulated sensor mount improves viewpoint flexibility and helps reduce occlusion,
+              especially for under-panel areas, support members, and rack geometry.
+            </p>
+          </article>
+        </div>
 
-   <div class="card highlight rover-note" style="margin-top: 1.25rem;">
-      <div class="label">Research Context</div>
-      <h3>Connection to conference paper</h3>
-      <p>
-        This robotic inspection concept builds on the framework described in the conference
-        paper, “A LiDAR-Enabled Ground Rover Framework for Smart Monitoring in
-        Utility-Scale Solar Power Systems: Design and Preliminary Validation.” The paper
-        presents the rover architecture, the motivation for articulated LiDAR sensing, and the
-        planned validation pathway linking laboratory calibration, controlled testing, and
-        outdoor deployment using the portable PV testbed.
-      </p>
-    </div>
-  </div>
-</section>
+        <div class="rover-gallery" aria-label="Rover LiDAR sensing and autonomy figures">
+          <figure class="card">
+            <img
+              src="assets/rover-new.png"
+              alt="Rover LiDAR field-of-view and angle-of-view configurations"
+            />
+            <figcaption class="image-caption">
+              LiDAR placement and angle-of-view configurations for rover-based inspection.
+            </figcaption>
+          </figure>
 
-    
+          <figure class="card">
+            <img
+              src="assets/pipeline.png"
+              alt="LiDAR SLAM and waypoint navigation pipeline for rover-based inspection"
+            />
+            <figcaption class="image-caption">
+              Data and autonomy pipeline linking LiDAR point clouds, SLAM, mapping, planning,
+              navigation, and waypoint-based inspection.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="rover-gallery" aria-label="Articulated arm and sensor positioning figures">
+          <figure class="card">
+            <img
+              src="assets/braccio_arm.png"
+              alt="Articulated robotic arm concept for LiDAR viewpoint adjustment"
+            />
+            <figcaption class="image-caption">
+              Articulated arm concept for changing the LiDAR viewpoint and reducing occlusion.
+            </figcaption>
+          </figure>
+
+          <figure class="card">
+            <img
+              src="assets/arm%20(1).png"
+              alt="Rendered robotic arm configuration for sensor positioning"
+            />
+            <figcaption class="image-caption">
+              Modeled arm configuration for sensor placement and future viewpoint planning.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="grid two" style="margin-top: 1.25rem;">
+          <article class="card">
+            <div class="label">Inspection Targets</div>
+            <h3>What the rover can help detect</h3>
+            <ul class="feature-list">
+              <li>Panel displacement, tilt change, or misalignment.</li>
+              <li>Frame deformation and support movement after wind or impact events.</li>
+              <li>Vegetation encroachment and obstruction near panel rows.</li>
+              <li>Terrain settlement, surface change, and clearance reduction.</li>
+              <li>Repeatable geometric change between inspection cycles.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="label">Workflow</div>
+            <h3>From scanning to decision support</h3>
+            <ul class="feature-list">
+              <li>Navigate to predefined inspection waypoints.</li>
+              <li>Acquire LiDAR scans from multiple viewpoints.</li>
+              <li>Register scans into a three-dimensional point cloud.</li>
+              <li>Compare repeated scans to identify geometric changes.</li>
+              <li>Integrate spatial observations with inverter and environmental data.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="rover-gallery" aria-label="Laboratory point-cloud mapping figures">
+          <figure class="card">
+            <img
+              src="assets/Lab%20Scans.png"
+              alt="Laboratory point cloud scans of structural and testbed components"
+            />
+            <figcaption class="image-caption">
+              Laboratory scan examples used for preliminary point-cloud processing and reconstruction.
+            </figcaption>
+          </figure>
+
+          <figure class="card">
+            <img
+              src="assets/lab-scan.png"
+              alt="Colorized LiDAR point cloud of laboratory test environment"
+            />
+            <figcaption class="image-caption">
+              Colorized LiDAR point cloud showing spatial mapping capability in a laboratory test environment.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="card highlight rover-note" style="margin-top: 1.25rem;">
+          <div class="label">Research Context</div>
+          <h3>Connection to conference paper</h3>
+          <p>
+            This robotic inspection concept builds on the framework described in the conference
+            paper, “A LiDAR-Enabled Ground Rover Framework for Smart Monitoring in
+            Utility-Scale Solar Power Systems: Design and Preliminary Validation.” The paper
+            presents the rover architecture, LiDAR-based mapping, the motivation for articulated
+            sensing, and the validation pathway linking laboratory calibration, controlled testing,
+            and outdoor deployment using the portable PV testbed.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <section id="environmental">
       <div class="container">
         <div class="section-head">
