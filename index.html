@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar Energy Testbed for Operational Monitoring | UC Berkeley</title>
+  <meta name="description" content="A UC Berkeley solar energy testbed for monitoring PV structural, geometric, electrical, and environmental performance under realistic operating conditions." />
+  <style>
+    :root {
+      --berkeley-blue: #003262;
+      --cal-gold: #FDB515;
+      --ink: #17212b;
+      --muted: #5d6b7a;
+      --line: #d9e2ec;
+      --soft: #f4f7fb;
+      --white: #ffffff;
+      --green: #247a4b;
+      --shadow: 0 18px 45px rgba(0, 50, 98, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      line-height: 1.65;
+    }
+
+    a { color: var(--berkeley-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 800;
+      color: var(--berkeley-blue);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--berkeley-blue), #0d6fb8);
+      position: relative;
+      box-shadow: 0 8px 20px rgba(0, 50, 98, 0.18);
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 50%;
+      background: var(--cal-gold);
+      border: 3px solid white;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 1rem;
+      font-size: 0.94rem;
+      font-weight: 650;
+    }
+
+    .hero {
+      background:
+        linear-gradient(90deg, rgba(0, 50, 98, 0.92), rgba(0, 50, 98, 0.64), rgba(0, 50, 98, 0.12)),
+        url("assets/solar-testbed-under-construction.jpeg") center/cover no-repeat;
+      min-height: 680px;
+      color: white;
+      display: grid;
+      align-items: center;
+    }
+
+    .hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 5rem 1.25rem;
+      width: 100%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(253, 181, 21, 0.16);
+      border: 1px solid rgba(253, 181, 21, 0.5);
+      color: #ffe5a3;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin: 1.2rem 0 1rem;
+      font-size: clamp(2.4rem, 5vw, 5.1rem);
+      line-height: 1.02;
+      letter-spacing: -0.06em;
+    }
+
+    .hero p {
+      max-width: 790px;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      color: rgba(255,255,255,0.92);
+      margin-bottom: 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 0.85rem 1.15rem;
+      font-weight: 800;
+      border: 2px solid transparent;
+    }
+
+    .button.primary { background: var(--cal-gold); color: #111; }
+    .button.secondary { color: white; border-color: rgba(255,255,255,0.6); }
+    .button.secondary:hover { background: rgba(255,255,255,0.12); text-decoration: none; }
+
+    main section {
+      padding: 4.5rem 1.25rem;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      max-width: 810px;
+      margin-bottom: 2rem;
+    }
+
+    .label {
+      color: var(--green);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.78rem;
+    }
+
+    h2 {
+      margin: 0.25rem 0 0.8rem;
+      color: var(--berkeley-blue);
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    h3 {
+      margin: 0 0 0.55rem;
+      color: var(--berkeley-blue);
+      line-height: 1.2;
+    }
+
+    .muted { color: var(--muted); }
+
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 1.35rem;
+      box-shadow: 0 10px 30px rgba(0, 50, 98, 0.06);
+    }
+
+    .card.highlight {
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      box-shadow: var(--shadow);
+    }
+
+    .soft { background: var(--soft); }
+
+    .metric {
+      font-size: 2.1rem;
+      color: var(--berkeley-blue);
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      margin-bottom: 0.2rem;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .feature-list {
+      padding-left: 1.1rem;
+      margin: 0.65rem 0 0;
+    }
+
+    .feature-list li { margin-bottom: 0.45rem; }
+
+    .photo-card {
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      min-height: 380px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .caption {
+      font-size: 0.88rem;
+      color: var(--muted);
+      padding: 0.8rem 1rem 1rem;
+      background: white;
+      border-top: 1px solid var(--line);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.85rem;
+      align-items: stretch;
+    }
+
+    .flow-step {
+      position: relative;
+      border-radius: 22px;
+      padding: 1.1rem;
+      background: white;
+      border: 1px solid var(--line);
+      min-height: 160px;
+    }
+
+    .flow-step .num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cal-gold);
+      font-weight: 900;
+      margin-bottom: 0.75rem;
+    }
+
+    .team-card a { font-weight: 750; }
+
+    .team-role {
+      color: var(--muted);
+      font-size: 0.94rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .status {
+      border-left: 5px solid var(--cal-gold);
+      padding-left: 1rem;
+    }
+
+    footer {
+      background: #071b2e;
+      color: rgba(255,255,255,0.86);
+      padding: 2.3rem 1.25rem;
+    }
+
+    footer .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    footer a { color: #ffe1a3; }
+
+    @media (max-width: 900px) {
+      .nav { align-items: flex-start; flex-direction: column; }
+      .nav-links { justify-content: flex-start; }
+      .hero { min-height: 620px; }
+      .grid.two, .grid.three, .grid.four, .flow { grid-template-columns: 1fr; }
+      main section { padding: 3.3rem 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="Solar testbed home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>UC Berkeley Solar Energy Testbed</span>
+      </a>
+      <div class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#testbed">Testbed</a>
+        <a href="#monitoring">Monitoring</a>
+        <a href="#environmental">Environmental Impacts</a>
+        <a href="#team">Team</a>
+      </div>
+    </nav>
+  </header>
+
+  <section id="top" class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Upcoming Research Platform</div>
+      <h1>Solar Energy Testbed for Operational Monitoring Under Environmental Impacts</h1>
+      <p>
+        A portable photovoltaic testbed with inverter-based electrical monitoring, structural and geometric sensing, and robotic inspection capabilities for studying how real-world environmental stressors affect solar-energy performance and asset health.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="#testbed">Explore the Testbed</a>
+        <a class="button secondary" href="#team">Meet the Team</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="overview">
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Research Vision</div>
+          <h2>Linking electrical performance, physical condition, and field exposure.</h2>
+          <p class="muted">
+            The platform is designed to support controlled and repeatable experiments on photovoltaic asset health, electrical performance, and structural behavior. It will help quantify how environmental and mechanical stressors change the operational behavior of PV systems and how these changes can be detected earlier using integrated sensing.
+          </p>
+        </div>
+        <div class="grid three">
+          <article class="card highlight">
+            <h3>Electrical operation</h3>
+            <p>String-level inverter data will be used to monitor voltage, current, power, and energy during controlled exposure cycles.</p>
+          </article>
+          <article class="card highlight">
+            <h3>Structural condition</h3>
+            <p>The testbed will track deformation, frame drift, connection loosening, and dynamic response under realistic and extreme loading conditions.</p>
+          </article>
+          <article class="card highlight">
+            <h3>Digital-twin datasets</h3>
+            <p>Geometric, structural, environmental, and electrical data streams will support digital-twin development and field-informed performance models.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="testbed" class="soft">
+      <div class="container">
+        <div class="grid two">
+          <div>
+            <div class="label">Physical Platform</div>
+            <h2>Portable PV testbed with high-voltage string inverter architecture.</h2>
+            <p>
+              The testbed uses utility-scale thin-film CdTe photovoltaic modules and an inverter architecture selected to match their high-voltage, low-current behavior. The configuration is intended to remain flexible as the research evolves from initial deployment to expanded experimental configurations.
+            </p>
+            <div class="grid two" style="margin-top: 1.2rem;">
+              <div class="card">
+                <div class="metric">2</div>
+                <strong>modules per string</strong>
+                <p class="muted">Series-connected pairs form the fundamental electrical unit.</p>
+              </div>
+              <div class="card">
+                <div class="metric">3</div>
+                <strong>MPPT channels</strong>
+                <p class="muted">Independent string-level monitoring and operational flexibility.</p>
+              </div>
+              <div class="card">
+                <div class="metric">6+</div>
+                <strong>initial modules</strong>
+                <p class="muted">Expandable for future test configurations and added storage studies.</p>
+              </div>
+              <div class="card">
+                <div class="metric">RFS</div>
+                <strong>deployment setting</strong>
+                <p class="muted">Testing at UC Berkeley’s Richmond Field Station facilities.</p>
+              </div>
+            </div>
+          </div>
+          <figure class="card photo-card">
+            <img src="assets/solar-testbed-under-construction.jpeg" alt="Solar panel testbed under construction inside a laboratory space" />
+            <figcaption class="caption">Solar-panel testbed hardware under preparation for controlled experimental deployment.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="monitoring">
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Monitoring Architecture</div>
+          <h2>From field measurements to asset-health intelligence.</h2>
+          <p class="muted">
+            The monitoring approach combines electrical measurements, environmental data, structural response, and robotic spatial mapping. The objective is not only to measure PV output, but also to understand the physical causes of performance degradation.
+          </p>
+        </div>
+        <div class="flow" aria-label="Monitoring workflow">
+          <div class="flow-step">
+            <div class="num">1</div>
+            <h3>Expose</h3>
+            <p>Subject panels and frame to controlled environmental and mechanical conditions.</p>
+          </div>
+          <div class="flow-step">
+            <div class="num">2</div>
+            <h3>Measure</h3>
+            <p>Collect inverter, temperature, humidity, irradiance, vibration, and geometric data.</p>
+          </div>
+          <div class="flow-step">
+            <div class="num">3</div>
+            <h3>Scan</h3>
+            <p>Use LiDAR-enabled robotic inspection to capture point clouds and repeated geometry.</p>
+          </div>
+          <div class="flow-step">
+            <div class="num">4</div>
+            <h3>Compare</h3>
+            <p>Quantify changes in panel surfaces, frame alignment, support drift, and obstructions.</p>
+          </div>
+          <div class="flow-step">
+            <div class="num">5</div>
+            <h3>Predict</h3>
+            <p>Integrate data into digital-twin models for performance and condition assessment.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="environmental" class="soft">
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Environmental Impacts</div>
+          <h2>Controlled studies of realistic solar-farm stressors.</h2>
+          <p class="muted">
+            The testbed will support multi-phenomena studies that link field exposure to performance loss, structural response, and functional recovery.
+          </p>
+        </div>
+        <div class="grid three">
+          <article class="card">
+            <h3>Soiling and cleaning</h3>
+            <p>Dust accumulation, coating durability, and response to air, water, or pulsed-jet cleaning systems.</p>
+          </article>
+          <article class="card">
+            <h3>Thermal effects</h3>
+            <p>Temperature-driven performance variation, thermal cycling, and temperature-related degradation patterns.</p>
+          </article>
+          <article class="card">
+            <h3>Shading and vegetation</h3>
+            <p>Vegetation encroachment, surface obstruction, and partial shading effects on string-level performance.</p>
+          </article>
+          <article class="card">
+            <h3>Wind and vibration</h3>
+            <p>Frame movement, panel displacement, connection loosening, and dynamic response under mechanical excitation.</p>
+          </article>
+          <article class="card">
+            <h3>Hail and impact</h3>
+            <p>Localized impact scenarios to evaluate geometric changes, structural vulnerabilities, and recovery indicators.</p>
+          </article>
+          <article class="card">
+            <h3>Smoke, ash, and heat</h3>
+            <p>Particulate exposure and controlled heat-flux scenarios, subject to safety review and approval.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="grid two">
+          <article class="card highlight">
+            <div class="label">Robotics Integration</div>
+            <h2>LiDAR-enabled rover inspection</h2>
+            <p>
+              A ground rover equipped with LiDAR and autonomous navigation will support repeated geometric inspection, point-cloud generation, and change detection of solar-panel surfaces, support frames, and surrounding site conditions.
+            </p>
+            <ul class="feature-list">
+              <li>Autonomous waypoint navigation and obstacle avoidance.</li>
+              <li>3D point-cloud mapping using LiDAR and SLAM workflows.</li>
+              <li>Repeat inspection for geometric change detection over time.</li>
+              <li>Future integration with articulated sensing viewpoints to reduce occlusion.</li>
+            </ul>
+          </article>
+          <article class="card highlight">
+            <div class="label">Research Outcomes</div>
+            <h2>Data for resilient solar infrastructure</h2>
+            <p>
+              The testbed is intended to produce high-quality datasets for solar-farm O&amp;M, reliability-centered monitoring, and digital twins. These datasets can support asset-health indicators, performance derating models, and more resilient planning for PV infrastructure.
+            </p>
+            <div class="pill-list">
+              <span class="pill">Asset health</span>
+              <span class="pill">Functional recovery</span>
+              <span class="pill">Digital twins</span>
+              <span class="pill">Robotic inspection</span>
+              <span class="pill">Solar O&amp;M</span>
+              <span class="pill">Field validation</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="team" class="soft">
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Personnel</div>
+          <h2>Project team</h2>
+          <p class="muted">UC Berkeley personnel contributing to the solar energy testbed, operational monitoring, digital-twin, and robotic inspection activities.</p>
+        </div>
+        <div class="grid four">
+          <article class="card team-card">
+            <h3>Khalid M. Mosalam</h3>
+            <div class="team-role">Principal Investigator</div>
+            <a href="mailto:mosalam@berkeley.edu">mosalam@berkeley.edu</a>
+          </article>
+          <article class="card team-card">
+            <h3>Omar Shabana</h3>
+            <div class="team-role">PhD Student</div>
+            <a href="mailto:omar_shabana@berkeley.edu">omar_shabana@berkeley.edu</a>
+          </article>
+          <article class="card team-card">
+            <h3>Naiqi Guo</h3>
+            <div class="team-role">MS Student</div>
+            <a href="mailto:naming201@berkeley.edu">naming201@berkeley.edu</a>
+          </article>
+          <article class="card team-card">
+            <h3>Jiawei Chen</h3>
+            <div class="team-role">Postdoctoral Researcher</div>
+            <a href="mailto:jiawei_chen@berkeley.edu">jiawei_chen@berkeley.edu</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head status">
+          <div class="label">Current Status</div>
+          <h2>Under construction and moving toward deployment.</h2>
+          <p>
+            The testbed design is being translated into an experimental platform for indoor and outdoor studies. Near-term priorities include final assembly, instrumentation, inverter integration, initial data logging, and robotic inspection trials. The platform is designed to evolve as new sensors, test scenarios, and operational questions emerge.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>
+        <strong>UC Berkeley Solar Energy Testbed</strong><br />
+        Operational monitoring, resilience, and functional recovery for PV infrastructure.
+      </div>
+      <div>
+        Contact: <a href="mailto:mosalam@berkeley.edu">mosalam@berkeley.edu</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
