@@ -15,14 +15,14 @@
         <div class="energy-layout">
           <div class="energy-left">
             <figure class="card media-card location-card">
-              <img src="../assets/energy/location.png" alt="University of California, Berkeley - Richmond Field Station solar testbed location" />
+              <img src="assets/energy/location.png" alt="University of California, Berkeley - Richmond Field Station solar testbed location" />
               <figcaption class="caption">
                 <div class="label" style="margin-bottom:0.45rem;">Location</div>
                 <strong>University of California, Berkeley - Richmond Field Station</strong>
               </figcaption>
             </figure>
             <div class="frame-wrap">
-              <iframe id="solar-frame" src="../goodwe-exports/2026-05-30_solarpanel.html" title="Solar Panel PV chart"></iframe>
+              <iframe id="solar-frame" src="goodwe-exports/2026-05-30_solarpanel.html" title="Solar Panel PV chart"></iframe>
             </div>
           </div>
           <div class="energy-right">
@@ -46,8 +46,8 @@
               <h3 id="current-files-title">Generated exports for 2026-05-30</h3>
               <p class="selected-date" id="selected-date-label">2026-05-30</p>
               <div class="export-list">
-                <div class="export-item"><span>PV chart</span><a id="open-html-link" href="../goodwe-exports/2026-05-30_solarpanel.html">Open HTML</a></div>
-                <div class="export-item"><span>Raw export</span><a id="open-xls-link" href="../goodwe-exports/2026-05-30_power.xls">Open XLS</a></div>
+                <div class="export-item"><span>PV chart</span><a id="open-html-link" href="goodwe-exports/2026-05-30_solarpanel.html">Open HTML</a></div>
+                <div class="export-item"><span>Raw export</span><a id="open-xls-link" href="goodwe-exports/2026-05-30_power.xls">Open XLS</a></div>
               </div>
               <p class="support-copy" id="date-help" style="margin-top:0.9rem;">Pick a date from the mini calendar or the quick buttons to switch both the chart and file links.</p>
             </article>
@@ -80,11 +80,11 @@
     }
 
     function chartPath(dateString) {
-      return `../goodwe-exports/${dateString}_solarpanel.html`;
+      return `goodwe-exports/${dateString}_solarpanel.html`;
     }
 
     function xlsPath(dateString) {
-      return `../goodwe-exports/${dateString}_power.xls`;
+      return `goodwe-exports/${dateString}_power.xls`;
     }
 
     function setActiveButton(activeDate) {

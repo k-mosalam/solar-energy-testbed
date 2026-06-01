@@ -536,7 +536,7 @@ async function exportCurrentDate(page, outDir, ymd) {
     throw new Error(`invalid --refresh-days value: ${options['refresh-days']}`);
   }
 
-  const outDir = path.resolve(__dirname, '..', 'goodwe-exports');
+  const outDir = path.resolve(__dirname, '..', 'docs', 'goodwe-exports');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
 
   const targetUrl = `https://www.semsportal.com/powerstation/PowerStatusSnMin/${stationId}`;

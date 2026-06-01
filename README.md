@@ -25,30 +25,29 @@ https://k-mosalam.github.io/solar-energy-testbed/
 
 ```text
 .
-├── index.html
-├── README.md
-└── assets/
-
-
-## Files
-
-```text
-solar-testbed-webpage/
-├── index.html
-├── README.md
-└── assets/
-    └── solar-testbed-under-construction.jpeg
+├── docs/
+│   ├── index.html
+│   ├── energy.html
+│   ├── gallery.html
+│   ├── styles.css
+│   ├── assets/
+│   └── goodwe-exports/
+├── scripts/
+│   └── get_data.js
+├── package.json
+├── package-lock.json
+└── README.md
 ```
 
 ## How to publish on GitHub Pages
 
 1. Create a new GitHub repository, for example `solar-energy-testbed`.
-2. Upload `index.html`, `README.md`, and the `assets` folder to the repository root.
+2. Push the repository contents to GitHub with the site files inside the `docs/` folder.
 3. Go to **Settings → Pages**.
 4. Under **Build and deployment**, choose:
    - Source: `Deploy from a branch`
    - Branch: `main`
-   - Folder: `/root`
+   - Folder: `/docs`
 5. Save and wait for GitHub to publish the site.
 
 The published URL will look like:
