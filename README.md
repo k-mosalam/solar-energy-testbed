@@ -64,3 +64,15 @@ https://k-mosalam.github.io/solar-energy-testbed/
 - Add a simple figure showing the electrical layout: PV modules → string inverter → battery/storage → data logger.
 - Add a simple figure showing the monitoring loop: environmental exposure → electrical response → LiDAR scan → digital twin update.
 - Add links to related papers, proposals, and demonstrations when they are ready for public sharing.
+
+## Local setup note
+
+- `node_modules/` is a local dependency folder created by `npm install`. It is used to run the data scripts in `scripts/`, but it should not be committed to GitHub.
+- If `node_modules/` is deleted, the website files still work, but the Node scripts will not run until dependencies are reinstalled.
+- To restore dependencies locally, run:
+
+```bash
+npm install
+```
+
+- For GitHub Pages publishing, the site files are served from the `docs/` folder.

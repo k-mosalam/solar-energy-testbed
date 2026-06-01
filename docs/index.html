@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar Energy Testbed Overview | UC Berkeley</title>
+  <meta name="description" content="Overview and navigation hub for the UC Berkeley Solar Energy Testbed." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="index.html" aria-label="Solar testbed home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>UC Berkeley Solar Energy Testbed</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Overview</a>
+        <a href="paper.html">Paper</a>
+        <a href="testbed.html">Testbed</a>
+        <a href="monitoring.html">Monitoring</a>
+        <a href="energy.html">Energy Generation</a>
+        <a href="inspection.html">Inspection</a>
+        <a href="environmental.html">Stressors</a>
+        <a href="team.html">Team</a>
+        <a href="acknowledgements.html">Acknowledgements</a>
+        <a href="gallery.html">Gallery</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Overview</div>
+      <h1>Solar Energy Testbed for Operational Monitoring Under Environmental Impacts</h1>
+      <p>
+        This homepage is now the project overview and entry point. Detailed content has been split into dedicated pages so electrical data, inspection workflows, and research material can grow without turning the site into one oversized document.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="energy.html">Open Energy Generation</a>
+        <a class="button secondary" href="inspection.html">Open Inspection</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Overview</div>
+          <h2>One project, multiple focused pages.</h2>
+          <p class="muted">
+            The site is organized by workflow instead of by one long scroll. Use this page to orient yourself, then jump into the module you need: physical platform, monitoring architecture, energy data, robotic inspection, environmental stressors, team, or project background.
+          </p>
+        </div>
+
+        <div class="nav-card-list">
+          <a class="nav-card" href="testbed.html">
+            <article class="card highlight">
+              <div class="label">Physical Platform</div>
+              <h3>Testbed</h3>
+              <p>PV architecture, deployment context, and hardware configuration.</p>
+            </article>
+          </a>
+          <a class="nav-card" href="monitoring.html">
+            <article class="card highlight">
+              <div class="label">Workflow</div>
+              <h3>Monitoring</h3>
+              <p>How field measurements, environmental data, and geometry fit together.</p>
+            </article>
+          </a>
+          <a class="nav-card" href="energy.html">
+            <article class="card highlight">
+              <div class="label">Data</div>
+              <h3>Energy Generation</h3>
+              <p>Dedicated page for charted PV output and downloaded SEMS exports.</p>
+            </article>
+          </a>
+          <a class="nav-card" href="inspection.html">
+            <article class="card highlight">
+              <div class="label">Robotics</div>
+              <h3>Inspection</h3>
+              <p>LiDAR rover concepts, point clouds, and repeatable geometric checks.</p>
+            </article>
+          </a>
+          <a class="nav-card" href="gallery.html">
+            <article class="card highlight">
+              <div class="label">Visual Archive</div>
+              <h3>Gallery</h3>
+              <p>Project photos for the site, panels, rover hardware, and lab scans.</p>
+            </article>
+          </a>
+          <a class="nav-card" href="paper.html">
+            <article class="card highlight">
+              <div class="label">Research Context</div>
+              <h3>Paper</h3>
+              <p>Conference-paper summary and why the rover framework matters here.</p>
+            </article>
+          </a>
+          <a class="nav-card" href="environmental.html">
+            <article class="card highlight">
+              <div class="label">Exposure</div>
+              <h3>Stressors</h3>
+              <p>Soiling, shading, vibration, impact, heat, and resilience-oriented studies.</p>
+            </article>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="soft">
+      <div class="container">
+        <div class="page-grid">
+          <div class="side-stack">
+            <article class="card status">
+              <div class="label">Research Vision</div>
+              <h2>Linking electrical performance, physical condition, and field exposure.</h2>
+              <p>
+                The platform supports repeatable experiments on photovoltaic asset health, structural behavior, and environmental stress. It is meant to connect what the inverter reports, what the hardware is physically experiencing, and what autonomous inspection can measure over time.
+              </p>
+            </article>
+
+            <div class="grid three">
+              <article class="card">
+                <div class="metric">Electrical</div>
+                <p class="muted">String-level inverter measurements for power, energy, and operating state.</p>
+              </article>
+              <article class="card">
+                <div class="metric">Structural</div>
+                <p class="muted">Frame drift, support movement, vibration, impact response, and geometry change.</p>
+              </article>
+              <article class="card">
+                <div class="metric">Digital Twin</div>
+                <p class="muted">Field-informed datasets for resilience, O&amp;M, and condition-aware models.</p>
+              </article>
+            </div>
+          </div>
+
+          <aside class="side-stack">
+            <figure class="card media-card">
+              <img src="../assets/testbed-comparison.png" alt="Portable PV testbed concept compared with the constructed mobile frame" />
+              <figcaption class="caption">Portable PV testbed concept and current build direction.</figcaption>
+            </figure>
+            <article class="card">
+              <div class="label">Current Status</div>
+              <h3>Under construction and moving toward deployment</h3>
+              <p class="muted">
+                The platform is moving toward indoor and outdoor studies, with inverter integration, initial logging, and robotic inspection trials forming the near-term priorities.
+              </p>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>
+        <strong>UC Berkeley Solar Energy Testbed</strong><br />
+        Operational monitoring, resilience, and functional recovery for PV infrastructure.
+      </div>
+      <div>
+        Contact: <a href="mailto:mosalam@berkeley.edu">mosalam@berkeley.edu</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
