@@ -60,14 +60,30 @@ https://k-mosalam.github.io/solar-energy-testbed/
 The repository uses a Python export script with the same output folder and date-selection logic:
 
 ```bash
-python3 scripts/get_data.py
+python scripts/get_data.py
+```
+
+Common ways to run it:
+
+```bash
+# Update the latest 3 available dates (default mode)
+python scripts/get_data.py
+
+# Download one specific date
+python scripts/get_data.py --date 2026-06-07
+
+# Download every available date from a starting date through the current remote latest date
+python scripts/get_data.py --since 2026-06-01
+
+# Refresh a custom number of most recent days
+python scripts/get_data.py --refresh-days 7
 ```
 
 To install the Python dependencies:
 
 ```bash
 pip install -r requirements-python.txt
-python3 -m playwright install
+python -m playwright install
 ```
 
 ## Suggested next improvements
@@ -84,7 +100,7 @@ python3 -m playwright install
 
 ```bash
 pip install -r requirements-python.txt
-python3 -m playwright install
+python -m playwright install
 ```
 
 - For GitHub Pages publishing, the site files are served from the `docs/` folder.
