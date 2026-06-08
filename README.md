@@ -33,9 +33,8 @@ https://k-mosalam.github.io/solar-energy-testbed/
 │   ├── assets/
 │   └── goodwe-exports/
 ├── scripts/
-│   └── get_data.js
-├── package.json
-├── package-lock.json
+│   └── get_data.py
+├── requirements-python.txt
 └── README.md
 ```
 
@@ -56,15 +55,9 @@ The published URL will look like:
 https://k-mosalam.github.io/solar-energy-testbed/
 ```
 
-## Data Script Options
+## Data Script
 
-The repository keeps the existing Node.js export script:
-
-```bash
-node scripts/get_data.js
-```
-
-There is also a Python equivalent with the same output folder and date-selection logic:
+The repository uses a Python export script with the same output folder and date-selection logic:
 
 ```bash
 python3 scripts/get_data.py
@@ -74,7 +67,7 @@ To install the Python dependencies:
 
 ```bash
 pip install -r requirements-python.txt
-playwright install
+python3 -m playwright install
 ```
 
 ## Suggested next improvements
@@ -87,12 +80,11 @@ playwright install
 
 ## Local setup note
 
-- `node_modules/` is a local dependency folder created by `npm install`. It is used to run the data scripts in `scripts/`, but it should not be committed to GitHub.
-- If `node_modules/` is deleted, the website files still work, but the Node scripts will not run until dependencies are reinstalled.
-- To restore dependencies locally, run:
+- To install the Python dependencies locally, run:
 
 ```bash
-npm install
+pip install -r requirements-python.txt
+python3 -m playwright install
 ```
 
 - For GitHub Pages publishing, the site files are served from the `docs/` folder.
