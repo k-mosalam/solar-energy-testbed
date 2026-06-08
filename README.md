@@ -56,6 +56,27 @@ The published URL will look like:
 https://k-mosalam.github.io/solar-energy-testbed/
 ```
 
+## Data Script Options
+
+The repository keeps the existing Node.js export script:
+
+```bash
+node scripts/get_data.js
+```
+
+There is also a Python equivalent with the same output folder and date-selection logic:
+
+```bash
+python3 scripts/get_data.py
+```
+
+To install the Python dependencies:
+
+```bash
+pip install -r requirements-python.txt
+playwright install
+```
+
 ## Suggested next improvements
 
 - Add UC Berkeley, PEER, STAIRlab, CalNEXT, and NextPower logos if approved.
