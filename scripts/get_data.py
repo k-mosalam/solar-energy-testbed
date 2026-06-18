@@ -228,6 +228,13 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
     labels = [point.time_label for point in series]
     full_times = [point.full_time for point in series]
     pv_data = [point.pv for point in series]
+    load_data = [point.load for point in series]
+    has_data = bool(series)
+    status_text = (
+        "The export contains timestamped power samples for this day."
+        if has_data
+        else "This export contains headers only. No timestamped power samples were available for this day."
+    )
 
     return f"""<!doctype html>
 <html lang="en">
@@ -263,6 +270,7 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
       border-radius: 8px;
       padding: 20px 20px 12px;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      margin-bottom: 22px;
     }}
     .header {{
       display: flex;
@@ -283,6 +291,22 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
       line-height: 1.4;
       text-align: right;
     }}
+    .subcopy {{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }}
+    .status-note {{
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #eef4fb;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.5;
+    }}
     .chart-box {{
       position: relative;
       height: min(68vh, 680px);
@@ -296,11 +320,13 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
 </head>
 <body>
   <div class="wrap">
+    <div class="status-note">{escape_html(status_text)}</div>
     <div class="panel">
       <div class="header">
         <div>
           <h1 class="title">Solar Panel</h1>
           <div class="meta">{escape_html(ymd)} PV</div>
+          <p class="subcopy">PV output power measured from the solar generation side.</p>
         </div>
         <div class="meta">Hover to inspect values</div>
       </div>
@@ -308,12 +334,25 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
         <canvas id="powerChart"></canvas>
       </div>
     </div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Outlet Load</h1>
+          <div class="meta">{escape_html(ymd)} Load</div>
+          <p class="subcopy">Load represents the power consumed by devices connected to the outlet side of the testbed.</p>
+        </div>
+        <div class="meta">Socket-side power draw</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="loadChart"></canvas>
+      </div>
+    </div>
   </div>
   <script src="{CHART_JS_URL}"></script>
   <script>
     const labels = {json.dumps(labels)};
     const fullTimes = {json.dumps(full_times)};
-    const datasets = [{{
+    const pvDatasets = [{{
       label: 'PV',
       data: {json.dumps(pv_data)},
       borderColor: '#10b7d8',
@@ -326,64 +365,82 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
       yAxisID: 'y'
     }}];
 
-    const chart = new Chart(document.getElementById('powerChart'), {{
-      type: 'line',
-      data: {{ labels, datasets }},
-      options: {{
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {{
-          mode: 'index',
-          intersect: false
-        }},
-        plugins: {{
-          legend: {{
-            display: true,
-            position: 'top',
-            labels: {{
-              usePointStyle: true,
-              boxWidth: 10,
-              boxHeight: 10,
-              padding: 18,
-              color: '#1f2937'
-            }}
+    const loadDatasets = [{{
+      label: 'Outlet Load',
+      data: {json.dumps(load_data)},
+      borderColor: '#f59e0b',
+      backgroundColor: 'rgba(245, 158, 11, 0.18)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      yAxisID: 'y'
+    }}];
+
+    function buildChart(canvasId, datasets) {{
+      return new Chart(document.getElementById(canvasId), {{
+        type: 'line',
+        data: {{ labels, datasets }},
+        options: {{
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {{
+            mode: 'index',
+            intersect: false
           }},
-          tooltip: {{
-            callbacks: {{
-              title(items) {{
-                return items.length ? fullTimes[items[0].dataIndex] : '';
-              }},
-              label(context) {{
-                const label = context.dataset.label || '';
-                const value = context.raw == null ? '-' : context.raw;
-                return label + ': ' + value + ' W';
+          plugins: {{
+            legend: {{
+              display: true,
+              position: 'top',
+              labels: {{
+                usePointStyle: true,
+                boxWidth: 10,
+                boxHeight: 10,
+                padding: 18,
+                color: '#1f2937'
+              }}
+            }},
+            tooltip: {{
+              callbacks: {{
+                title(items) {{
+                  return items.length ? fullTimes[items[0].dataIndex] : '';
+                }},
+                label(context) {{
+                  const label = context.dataset.label || '';
+                  const value = context.raw == null ? '-' : context.raw;
+                  return label + ': ' + value + ' W';
+                }}
               }}
             }}
-          }}
-        }},
-        scales: {{
-          x: {{
-            grid: {{ color: 'rgba(148, 163, 184, 0.12)' }},
-            ticks: {{
-              color: '#475569',
-              maxRotation: 0,
-              autoSkip: true,
-              maxTicksLimit: 14
-            }}
           }},
-          y: {{
-            position: 'left',
-            title: {{
-              display: true,
-              text: 'Watts',
-              color: '#475569'
+          scales: {{
+            x: {{
+              grid: {{ color: 'rgba(148, 163, 184, 0.12)' }},
+              ticks: {{
+                color: '#475569',
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 14
+              }}
             }},
-            grid: {{ color: 'rgba(148, 163, 184, 0.18)' }},
-            ticks: {{ color: '#475569' }}
+            y: {{
+              position: 'left',
+              title: {{
+                display: true,
+                text: 'Watts',
+                color: '#475569'
+              }},
+              grid: {{ color: 'rgba(148, 163, 184, 0.18)' }},
+              ticks: {{ color: '#475569' }}
+            }}
           }}
         }}
-      }}
-    }});
+      }});
+    }}
+
+    buildChart('powerChart', pvDatasets);
+    buildChart('loadChart', loadDatasets);
   </script>
 </body>
 </html>"""
@@ -391,9 +448,6 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
 
 def generate_chart_from_xls(xls_path: Path, ymd: str) -> Path:
     plant_name, series = parse_power_workbook(xls_path)
-    if not series:
-        raise RuntimeError(f"no data rows found in {xls_path}")
-
     html = build_chart_html(ymd=ymd, plant_name=plant_name, series=series)
     html_path = Path(str(xls_path).replace("_power.xls", "_solarpanel.html"))
     html_path.write_text(html, encoding="utf-8")

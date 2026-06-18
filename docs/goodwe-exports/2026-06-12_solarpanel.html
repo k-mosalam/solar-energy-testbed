@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solar Panel 2026-06-12</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --grid: rgba(148, 163, 184, 0.18);
+      --border: #dbe3ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 20px 12px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      margin-bottom: 22px;
+    }
+    .header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .title {
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      margin: 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+      text-align: right;
+    }
+    .subcopy {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .status-note {
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #eef4fb;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .chart-box {
+      position: relative;
+      height: min(68vh, 680px);
+      min-height: 380px;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="status-note">This export contains headers only. No timestamped power samples were available for this day.</div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Solar Panel</h1>
+          <div class="meta">2026-06-12 PV</div>
+          <p class="subcopy">PV output power measured from the solar generation side.</p>
+        </div>
+        <div class="meta">Hover to inspect values</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="powerChart"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Outlet Load</h1>
+          <div class="meta">2026-06-12 Load</div>
+          <p class="subcopy">Load represents the power consumed by devices connected to the outlet side of the testbed.</p>
+        </div>
+        <div class="meta">Socket-side power draw</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="loadChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js"></script>
+  <script>
+    const labels = [];
+    const fullTimes = [];
+    const pvDatasets = [{
+      label: 'PV',
+      data: [],
+      borderColor: '#10b7d8',
+      backgroundColor: 'rgba(16, 183, 216, 0.16)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      yAxisID: 'y'
+    }];
+
+    const loadDatasets = [{
+      label: 'Outlet Load',
+      data: [],
+      borderColor: '#f59e0b',
+      backgroundColor: 'rgba(245, 158, 11, 0.18)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      yAxisID: 'y'
+    }];
+
+    function buildChart(canvasId, datasets) {
+      return new Chart(document.getElementById(canvasId), {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: 10,
+                boxHeight: 10,
+                padding: 18,
+                color: '#1f2937'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title(items) {
+                  return items.length ? fullTimes[items[0].dataIndex] : '';
+                },
+                label(context) {
+                  const label = context.dataset.label || '';
+                  const value = context.raw == null ? '-' : context.raw;
+                  return label + ': ' + value + ' W';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148, 163, 184, 0.12)' },
+              ticks: {
+                color: '#475569',
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 14
+              }
+            },
+            y: {
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Watts',
+                color: '#475569'
+              },
+              grid: { color: 'rgba(148, 163, 184, 0.18)' },
+              ticks: { color: '#475569' }
+            }
+          }
+        }
+      });
+    }
+
+    buildChart('powerChart', pvDatasets);
+    buildChart('loadChart', loadDatasets);
+  </script>
+</body>
+</html>
