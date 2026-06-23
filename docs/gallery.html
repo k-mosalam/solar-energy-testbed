@@ -69,6 +69,14 @@
             <img src="assets/gallery/testbed-comparison.png" alt="Conceptual PV testbed comparison" />
             <figcaption class="caption">Conceptual and implemented testbed configuration comparison.</figcaption>
           </figure>
+          <figure class="card media-card">
+            <img src="assets/gallery/loading_test.jpg" alt="Richmond Field Station testbed location" />
+            <figcaption class="caption">Field photo.</figcaption>
+          </figure>
+          <figure class="card media-card">
+            <img src="assets/gallery/layout.jpg" alt="Richmond Field Station testbed location" />
+            <figcaption class="caption">Field photo.</figcaption>
+          </figure>
         </div>
       </div>
     </section>
@@ -130,5 +138,96 @@
       <div><a href="index.html">Back to overview</a></div>
     </div>
   </footer>
+
+  <div class="lightbox" id="gallery-lightbox" aria-hidden="true">
+    <div class="lightbox-backdrop" data-lightbox-close></div>
+    <div class="lightbox-panel" role="dialog" aria-modal="true" aria-labelledby="lightbox-caption">
+      <button class="lightbox-close" type="button" aria-label="Close image viewer" data-lightbox-close>&times;</button>
+      <img class="lightbox-image" id="lightbox-image" src="" alt="" />
+      <div class="lightbox-meta">
+        <p class="lightbox-caption" id="lightbox-caption"></p>
+        <a class="lightbox-download" id="lightbox-download" href="" download>Download image</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var lightbox = document.getElementById("gallery-lightbox");
+      var lightboxImage = document.getElementById("lightbox-image");
+      var lightboxCaption = document.getElementById("lightbox-caption");
+      var lightboxDownload = document.getElementById("lightbox-download");
+      var closeTargets = lightbox.querySelectorAll("[data-lightbox-close]");
+      var images = document.querySelectorAll(".gallery-grid .media-card img");
+      var lastActiveElement = null;
+
+      function closeLightbox() {
+        lightbox.classList.remove("is-open");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("lightbox-open");
+        if (lastActiveElement) {
+          lastActiveElement.focus();
+        }
+      }
+
+      function openLightbox(image) {
+        var captionText = image.getAttribute("data-caption") || image.alt;
+
+        lastActiveElement = document.activeElement;
+        lightboxImage.src = image.src;
+        lightboxImage.alt = image.alt;
+        lightboxCaption.textContent = captionText || image.alt;
+        lightboxDownload.href = image.src;
+        lightboxDownload.setAttribute("download", image.src.split("/").pop());
+        lightbox.classList.add("is-open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.classList.add("lightbox-open");
+      }
+
+      images.forEach(function (image) {
+        var figure = image.closest(".media-card");
+        var caption = figure ? figure.querySelector(".caption") : null;
+        var downloadLink = document.createElement("a");
+        var captionText = caption ? caption.textContent.trim() : image.alt;
+
+        image.classList.add("zoomable-image");
+        image.setAttribute("tabindex", "0");
+        image.setAttribute("role", "button");
+        image.setAttribute("aria-label", "Open larger view for " + (image.alt || "gallery image"));
+        image.setAttribute("data-caption", captionText || image.alt);
+
+        image.addEventListener("click", function () {
+          openLightbox(image);
+        });
+
+        image.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openLightbox(image);
+          }
+        });
+
+        downloadLink.className = "caption-download";
+        downloadLink.href = image.src;
+        downloadLink.setAttribute("download", image.src.split("/").pop());
+        downloadLink.textContent = "Download image";
+
+        if (caption) {
+          caption.appendChild(document.createTextNode(" "));
+          caption.appendChild(downloadLink);
+        }
+      });
+
+      closeTargets.forEach(function (target) {
+        target.addEventListener("click", closeLightbox);
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && lightbox.classList.contains("is-open")) {
+          closeLightbox();
+        }
+      });
+    }());
+  </script>
 </body>
 </html>
