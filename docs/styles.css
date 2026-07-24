@@ -95,7 +95,7 @@ a:hover { text-decoration: underline; }
 .hero {
   background:
     linear-gradient(90deg, rgba(0, 50, 98, 0.92), rgba(0, 50, 98, 0.64), rgba(0, 50, 98, 0.12)),
-    url("assets/solar-testbed-under-construction.jpeg") center/cover no-repeat;
+    url("assets/gallery/field_photo.jpg") center 35%/cover no-repeat;
   min-height: 680px;
   color: white;
   display: grid;
