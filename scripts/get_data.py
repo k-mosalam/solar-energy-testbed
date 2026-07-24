@@ -12,7 +12,11 @@ from typing import Any
 
 import requests
 import xlrd
-from playwright.sync_api import Page, sync_playwright
+try:
+    import xlwt
+except ImportError:
+    xlwt = None
+from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 
 DEFAULT_USERNAME = "naming201@berkeley.edu"
@@ -20,6 +24,8 @@ DEFAULT_PASSWORD = "Solarpanel1"
 DEFAULT_STATION_ID = "f421d697-3a6e-4e22-81cc-e25c6435ba7d"
 DEFAULT_REFRESH_DAYS = 3
 CHART_JS_URL = "https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js"
+CLASSIC_LOGIN_URL = "https://www.semsportal.com/home/login"
+SEMS_PLUS_URL = "https://semsplus.goodwe.com/"
 
 
 @dataclass
@@ -156,6 +162,46 @@ def build_target_dates(
         dates.append(format_ymd(cursor))
         cursor = add_days(cursor, 1)
     return dates
+
+
+def update_energy_page(out_dir: Path) -> None:
+    dates = sorted(list_local_dates(out_dir), reverse=True)
+    energy_path = out_dir.parent / "energy.html"
+    if not dates or not energy_path.exists():
+        return
+
+    latest = dates[0]
+    content = energy_path.read_text(encoding="utf-8")
+    content = re.sub(
+        r"goodwe-exports/\d{4}-\d{2}-\d{2}_(solarpanel\.html|power\.xls)",
+        lambda match: f"goodwe-exports/{latest}_{match.group(1)}",
+        content,
+    )
+    content = re.sub(
+        r'(<h3 id="current-files-title">Generated exports for )\d{4}-\d{2}-\d{2}(</h3>)',
+        rf"\g<1>{latest}\g<2>",
+        content,
+    )
+    content = re.sub(
+        r'(<p class="selected-date" id="selected-date-label">)\d{4}-\d{2}-\d{2}(</p>)',
+        rf"\g<1>{latest}\g<2>",
+        content,
+    )
+    date_lines = "\n".join(
+        f'      "{ymd}"{"," if index < len(dates) - 1 else ""}'
+        for index, ymd in enumerate(dates)
+    )
+    content, replacements = re.subn(
+        r"(    const availableDates = \[\n).*?(\n    \];)",
+        rf"\g<1>{date_lines}\g<2>",
+        content,
+        count=1,
+        flags=re.DOTALL,
+    )
+    if replacements != 1:
+        raise RuntimeError(f"unable to update availableDates in {energy_path}")
+    energy_path.write_text(content, encoding="utf-8")
+    print(f"Updated Energy page; latest available date is {latest}")
 
 
 def get_number(row: list[Any], index: int) -> float | None:
@@ -454,12 +500,163 @@ def generate_chart_from_xls(xls_path: Path, ymd: str) -> Path:
     return html_path
 
 
-def login(page: Page, username: str, password: str) -> None:
+def write_sems_plus_workbook(
+    out_path: Path,
+    plant_name: str,
+    power_response: dict[str, Any],
+) -> None:
+    if xlwt is None:
+        raise RuntimeError(
+            "SEMS+ XLS writing requires xlwt. Run: "
+            "python -m pip install -r requirements-python.txt"
+        )
+
+    data_lists = ((power_response.get("data") or {}).get("dataList") or [])
+    series_by_item = {
+        str(series.get("item", "")): series
+        for series in data_lists
+        if isinstance(series, dict)
+    }
+    aliases = {
+        "pv": ("pSystem", "pv", "solar"),
+        "soc": ("soc", "batterySoc"),
+        "battery": ("pBattery", "battery"),
+        "grid": ("pGrid", "grid"),
+        "load": ("pLoad", "load"),
+    }
+
+    values: dict[str, dict[str, float | None]] = {}
+    all_times: set[str] = set()
+    for output_name, item_names in aliases.items():
+        series = next(
+            (series_by_item[name] for name in item_names if name in series_by_item),
+            None,
+        )
+        unit = str((series or {}).get("unit") or "")
+        multiplier = 1000.0 if unit.lower() == "kw" and output_name != "soc" else 1.0
+        item_values: dict[str, float | None] = {}
+        for point in (series or {}).get("powerData") or []:
+            timestamp = str(point.get("tp") or "")
+            raw_power = point.get("power")
+            value = float(raw_power) * multiplier if raw_power is not None else None
+            if timestamp:
+                item_values[timestamp] = value
+                all_times.add(timestamp)
+        values[output_name] = item_values
+
+    # SEMS+ can return only empty tariff curves when an offline station has no
+    # power samples. Preserve the day as an empty export instead of failing.
+    if not all_times:
+        for series in data_lists:
+            for point in series.get("powerData") or []:
+                timestamp = str(point.get("tp") or "")
+                if timestamp:
+                    all_times.add(timestamp)
+
+    workbook = xlwt.Workbook()
+    sheet = workbook.add_sheet("Power")
+    sheet.write(1, 0, "Plant")
+    sheet.write(1, 1, plant_name)
+    headers = ["Time", "PV(W)", "SOC(%)", "Battery(W)", "Grid (W)", "Load(W)"]
+    for column, header in enumerate(headers):
+        sheet.write(2, column, header)
+
+    output_row = 3
+    for timestamp in sorted(all_times):
+        try:
+            parsed_time = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            continue
+        if parsed_time.minute % 5 != 0:
+            continue
+        display_time = parsed_time.strftime("%m.%d.%Y %H:%M:%S")
+        sheet.write(output_row, 0, display_time)
+        for column, output_name in enumerate(
+            ("pv", "soc", "battery", "grid", "load"),
+            start=1,
+        ):
+            value = values.get(output_name, {}).get(timestamp)
+            if value is not None:
+                sheet.write(output_row, column, value)
+        output_row += 1
+
+    workbook.save(str(out_path))
+
+
+def first_visible(page: Page, selectors: list[str]):
+    for selector in selectors:
+        locator = page.locator(selector)
+        for index in range(locator.count()):
+            candidate = locator.nth(index)
+            if candidate.is_visible():
+                return candidate
+    return None
+
+
+def login(page: Page, username: str, password: str, platform: str) -> None:
     print("Login...")
+    login_url = SEMS_PLUS_URL if platform == "plus" else CLASSIC_LOGIN_URL
     try:
-        page.goto("https://www.semsportal.com/home/login", wait_until="networkidle", timeout=30000)
-    except Exception:
-        pass
+        page.goto(login_url, wait_until="networkidle", timeout=30000)
+    except PlaywrightTimeoutError:
+        print("Login page did not reach network idle within 30 seconds; continuing...")
+
+    if platform == "plus":
+        email_input = first_visible(
+            page,
+            [
+                'input[type="email"]',
+                'input[placeholder*="email" i]',
+                'input[autocomplete="username"]',
+                'input[type="text"]',
+            ],
+        )
+        password_input = first_visible(
+            page,
+            ['input[type="password"]', 'input[autocomplete="current-password"]'],
+        )
+        if not email_input or not password_input:
+            raise RuntimeError(
+                f"Unable to find the SEMS+ login inputs. Current URL: {page.url}"
+            )
+        email_input.fill(username)
+        password_input.fill(password)
+
+        agreement = page.locator(
+            'label.ant-checkbox-wrapper:has-text("I have read and agreed")'
+        ).first
+        if not agreement.is_visible():
+            raise RuntimeError("Unable to find the SEMS+ service-agreement checkbox.")
+        if "ant-checkbox-wrapper-checked" not in (agreement.get_attribute("class") or ""):
+            agreement.click()
+
+        accept_cookies = page.locator('button:has-text("Accept cookies")').first
+        if accept_cookies.is_visible():
+            accept_cookies.click()
+
+        login_button = first_visible(
+            page,
+            [
+                'button:has-text("Login")',
+                'button:has-text("Log in")',
+                'button[type="submit"]',
+                '[role="button"]:has-text("Login")',
+            ],
+        )
+        if not login_button:
+            raise RuntimeError("Unable to find the SEMS+ login button.")
+        login_button.click()
+        try:
+            page.wait_for_url(
+                lambda url: "#/login" not in str(url),
+                timeout=30000,
+            )
+        except PlaywrightTimeoutError:
+            print("SEMS+ URL did not change within 30 seconds; checking page content...")
+        sleep(2000)
+        print("SEMS+ URL after login:", page.url)
+        return
+
     try:
         page.click("#readStatement")
     except Exception:
@@ -483,32 +680,100 @@ def login(page: Page, username: str, password: str) -> None:
     sleep(5000)
 
 
-def open_power_page(page: Page, target_url: str) -> None:
+def open_power_page(page: Page, target_url: str, platform: str) -> None:
     print("Open power page...")
+    if platform == "classic":
+        try:
+            page.goto(target_url, wait_until="networkidle", timeout=30000)
+        except PlaywrightTimeoutError:
+            print("Power page did not reach network idle within 30 seconds; checking the rendered page...")
+
+    date_selector = (
+        '#chartBox input[placeholder="Select date"]'
+        if platform == "plus"
+        else ".station-date-picker_con .el-input__inner"
+    )
     try:
-        page.goto(target_url, wait_until="networkidle", timeout=30000)
-    except Exception:
-        pass
-    page.wait_for_selector(".station-date-picker_con .el-input__inner", timeout=30000)
-    page.wait_for_selector(".station-date-picker_left", timeout=30000)
-    page.wait_for_selector(".station-date-picker_right", timeout=30000)
-    page.wait_for_selector(".goodwe-station-charts__export", timeout=30000)
+        page.wait_for_selector(date_selector, timeout=30000)
+    except PlaywrightTimeoutError as error:
+        debug_dir = Path(__file__).resolve().parent.parent / "debug"
+        debug_dir.mkdir(exist_ok=True)
+        screenshot_path = debug_dir / "sems-power-page.png"
+        html_path = debug_dir / "sems-power-page.html"
+        page.screenshot(path=str(screenshot_path), full_page=True)
+        html_path.write_text(page.content(), encoding="utf-8")
+        print("Current URL:", page.url)
+        print("Page title:", page.title())
+        print("Debug screenshot:", screenshot_path)
+        print("Debug HTML:", html_path)
+        raise RuntimeError(
+            "SEMS power page did not show the expected date picker. "
+            "Check the browser window and the saved debug files; login may have failed "
+            "or the SEMS page structure may have changed."
+        ) from error
+
+    if platform == "plus":
+        page.wait_for_selector('#chartBox [aria-label="caret-left"]', timeout=30000)
+        page.wait_for_selector('#chartBox [aria-label="caret-right"]', timeout=30000)
+        print("SEMS+ station power page detected.")
+    else:
+        page.wait_for_selector(".station-date-picker_left", timeout=30000)
+        page.wait_for_selector(".station-date-picker_right", timeout=30000)
+        page.wait_for_selector(".goodwe-station-charts__export", timeout=30000)
     sleep(1500)
 
 
-def get_current_page_date(page: Page) -> date:
-    raw_value = page.locator(".station-date-picker_con .el-input__inner").input_value()
-    parsed = parse_page_date(raw_value)
+def get_current_page_date(page: Page, platform: str) -> date:
+    selector = (
+        '#chartBox input[placeholder="Select date"]'
+        if platform == "plus"
+        else ".station-date-picker_con .el-input__inner"
+    )
+    raw_value = page.locator(selector).input_value()
+    if platform == "plus":
+        try:
+            parsed = datetime.strptime(raw_value.strip(), "%d/%m/%Y").date()
+        except ValueError:
+            parsed = None
+    else:
+        parsed = parse_page_date(raw_value)
     if not parsed:
         raise RuntimeError(f"unable to parse page date: {raw_value}")
     return parsed
 
 
-def is_right_button_disabled(page: Page) -> bool:
+def is_right_button_disabled(page: Page, platform: str) -> bool:
+    if platform == "plus":
+        class_name = (
+            page.locator('#chartBox [aria-label="caret-right"]').get_attribute("class")
+            or ""
+        )
+        return "Disabled" in class_name
     return bool(page.locator(".station-date-picker_right").evaluate("el => el.disabled"))
 
 
-def click_date_button(page: Page, selector: str) -> None:
+def click_date_button(page: Page, selector: str, platform: str) -> None:
+    if platform == "plus":
+        responses: list[str] = []
+
+        def record_response(response: Any) -> None:
+            if response.request.method == "POST" and (
+                "station" in response.url.lower()
+                or "chart" in response.url.lower()
+                or "power" in response.url.lower()
+            ):
+                responses.append(response.url)
+
+        page.on("response", record_response)
+        try:
+            page.click(selector)
+            sleep(2000)
+        finally:
+            page.remove_listener("response", record_response)
+        for url in dict.fromkeys(responses):
+            print("SEMS+ date-change API:", url)
+        return
+
     with page.expect_response(
         lambda response: "/api/v2/Charts/GetPlantPowerChart" in response.url and response.request.method == "POST",
         timeout=30000,
@@ -517,20 +782,25 @@ def click_date_button(page: Page, selector: str) -> None:
     sleep(1500)
 
 
-def move_to_latest_date(page: Page) -> date:
-    while not is_right_button_disabled(page):
-        click_date_button(page, ".station-date-picker_right")
-    return get_current_page_date(page)
+def move_to_latest_date(page: Page, platform: str) -> date:
+    right_selector = (
+        '#chartBox [aria-label="caret-right"]'
+        if platform == "plus"
+        else ".station-date-picker_right"
+    )
+    while not is_right_button_disabled(page, platform):
+        click_date_button(page, right_selector, platform)
+    return get_current_page_date(page, platform)
 
 
-def move_to_target_date(page: Page, latest_date: date, target_date: date) -> date:
+def move_to_target_date(page: Page, latest_date: date, target_date: date, platform: str) -> date:
     offset = diff_days(latest_date, target_date)
     if offset < 0:
         raise RuntimeError(
             f"target date {format_ymd(target_date)} is newer than remote latest {format_ymd(latest_date)}"
         )
 
-    current = get_current_page_date(page)
+    current = get_current_page_date(page, platform)
     current_offset = diff_days(latest_date, current)
     remaining = offset - current_offset
 
@@ -540,9 +810,14 @@ def move_to_target_date(page: Page, latest_date: date, target_date: date) -> dat
         )
 
     for _ in range(remaining):
-        click_date_button(page, ".station-date-picker_left")
+        left_selector = (
+            '#chartBox [aria-label="caret-left"]'
+            if platform == "plus"
+            else ".station-date-picker_left"
+        )
+        click_date_button(page, left_selector, platform)
 
-    current = get_current_page_date(page)
+    current = get_current_page_date(page, platform)
     if format_ymd(current) != format_ymd(target_date):
         raise RuntimeError(
             f"failed to reach target date {format_ymd(target_date)}; current page date is {format_ymd(current)}"
@@ -551,7 +826,60 @@ def move_to_target_date(page: Page, latest_date: date, target_date: date) -> dat
     return current
 
 
-def export_current_date(page: Page, out_dir: Path, ymd: str) -> Path:
+def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> Path:
+    if platform == "plus":
+        captured: list[dict[str, Any]] = []
+
+        def capture_power_response(response: Any) -> None:
+            if "statisticsAndPreV2" not in response.url:
+                return
+            try:
+                captured.append(
+                    {
+                        "post_data": json.loads(response.request.post_data or "{}"),
+                        "response": response.json(),
+                    }
+                )
+            except Exception:
+                return
+
+        page.on("response", capture_power_response)
+        try:
+            right_selector = '#chartBox [aria-label="caret-right"]'
+            left_selector = '#chartBox [aria-label="caret-left"]'
+            if is_right_button_disabled(page, "plus"):
+                page.click(left_selector)
+                sleep(1500)
+                page.click(right_selector)
+            else:
+                page.click(right_selector)
+                sleep(1500)
+                page.click(left_selector)
+            sleep(2500)
+        finally:
+            page.remove_listener("response", capture_power_response)
+
+        matching = next(
+            (
+                item
+                for item in reversed(captured)
+                if str(item["post_data"].get("startTime", "")).startswith(ymd)
+            ),
+            None,
+        )
+        if not matching:
+            raise RuntimeError(f"SEMS+ power response was not captured for {ymd}")
+        response_json = matching["response"]
+        if response_json.get("code") != "00000":
+            raise RuntimeError(f"SEMS+ power API failed for {ymd}: {response_json}")
+
+        out_path = out_dir / f"{ymd}_power.xls"
+        write_sems_plus_workbook(out_path, "Calnext Testbed", response_json)
+        print(f"[{ymd}] Saved SEMS+ power data to {out_path}")
+        html_path = generate_chart_from_xls(out_path, ymd)
+        print(f"[{ymd}] Generated chart at {html_path}")
+        return out_path
+
     request_bodies: dict[str, str] = {}
 
     def on_request(request: Any) -> None:
@@ -637,11 +965,23 @@ def main() -> None:
     out_dir = Path(__file__).resolve().parent.parent / "docs" / "goodwe-exports"
     out_dir.mkdir(exist_ok=True)
 
-    target_url = f"https://www.semsportal.com/powerstation/PowerStatusSnMin/{station_id}"
+    platform = os.environ.get("SEMS_PLATFORM", "plus").lower()
+    if platform not in {"plus", "classic"}:
+        raise RuntimeError("SEMS_PLATFORM must be either 'plus' or 'classic'")
+    target_url = (
+        SEMS_PLUS_URL
+        if platform == "plus"
+        else f"https://www.semsportal.com/powerstation/PowerStatusSnMin/{station_id}"
+    )
     local_dates = list_local_dates(out_dir)
 
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox"])
+        headless = os.environ.get("PLAYWRIGHT_HEADLESS", "").lower() in {"1", "true", "yes"}
+        browser = playwright.chromium.launch(
+            headless=headless,
+            slow_mo=500 if not headless else 0,
+            args=["--no-sandbox", "--disable-setuid-sandbox"],
+        )
         context = browser.new_context(
             viewport={"width": 1600, "height": 1000},
             user_agent=(
@@ -652,10 +992,10 @@ def main() -> None:
         page = context.new_page()
 
         try:
-            login(page, username, password)
-            open_power_page(page, target_url)
+            login(page, username, password, platform)
+            open_power_page(page, target_url, platform)
 
-            latest_remote_date = move_to_latest_date(page)
+            latest_remote_date = move_to_latest_date(page, platform)
             print("Remote latest date:", format_ymd(latest_remote_date))
 
             if mode == "date" and explicit_date > latest_remote_date:
@@ -687,11 +1027,12 @@ def main() -> None:
 
             for ymd in target_dates:
                 target_date = parse_ymd(ymd)
-                move_to_target_date(page, latest_remote_date, target_date)
-                page_date = get_current_page_date(page)
+                move_to_target_date(page, latest_remote_date, target_date, platform)
+                page_date = get_current_page_date(page, platform)
                 print(f"[{ymd}] Page date is {format_ymd(page_date)} ({format_page_date(page_date)})")
-                export_current_date(page, out_dir, ymd)
+                export_current_date(page, out_dir, ymd, platform)
 
+            update_energy_page(out_dir)
             print("Done")
         finally:
             browser.close()
