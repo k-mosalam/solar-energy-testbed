@@ -6,32 +6,304 @@
   <title>Inspection | UC Berkeley Solar Energy Testbed</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <header class="topbar"><nav class="nav" aria-label="Main navigation"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span>UC Berkeley Solar Energy Testbed</span></a><div class="nav-links"><a href="index.html">Overview</a><a href="paper.html">Paper</a><a href="testbed.html">Testbed</a><a href="monitoring.html">Monitoring</a><a href="energy.html">Energy Generation</a><a href="inspection.html">Inspection</a><a href="environmental.html">Stressors</a><a href="team.html">Team</a><a href="acknowledgements.html">Acknowledgements</a><a href="gallery.html">Gallery</a></div></nav></header>
-  <section class="hero compact"><div class="hero-inner"><div class="eyebrow">Robotic Inspection</div><h1>LiDAR-enabled rover for spatial monitoring of solar infrastructure.</h1><p>This page keeps all rover, LiDAR, SLAM, point-cloud, and geometric-inspection material together.</p></div></section>
+
+  <header class="topbar">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>UC Berkeley Solar Energy Testbed</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html">Overview</a>
+        <a href="paper.html">Paper</a>
+        <a href="testbed.html">Testbed</a>
+        <a href="monitoring.html">Monitoring</a>
+        <a href="energy.html">Energy Generation</a>
+        <a href="inspection.html">Inspection</a>
+        <a href="environmental.html">Stressors</a>
+        <a href="team.html">Team</a>
+        <a href="acknowledgements.html">Acknowledgements</a>
+        <a href="gallery.html">Gallery</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero compact">
+    <div class="hero-inner">
+      <div class="eyebrow">Robotic Inspection</div>
+
+      <h1>
+        LiDAR-enabled rover for spatial monitoring of solar infrastructure.
+      </h1>
+
+      <p>
+        This page keeps all rover, LiDAR, SLAM, point-cloud, and
+        geometric-inspection material together.
+      </p>
+    </div>
+  </section>
+
   <main>
     <section>
       <div class="container">
+
+        <!-- Existing rover and workflow images -->
         <div class="grid two">
-          <figure class="card media-card"><img src="assets/rover_lidar_system.jpg" alt="Ground rover equipped with LiDAR sensor" /><figcaption class="caption">Ground rover equipped with LiDAR for close-range infrastructure inspection.</figcaption></figure>
-          <figure class="card media-card"><img src="assets/workflow.png" alt="Rover inspection workflow" /><figcaption class="caption">Deployment, scanning, reconstruction, change detection, and maintenance prioritization.</figcaption></figure>
+          <figure class="card media-card">
+            <img
+              src="assets/rover_lidar_system.jpg"
+              alt="Ground rover equipped with LiDAR sensor"
+            />
+            <figcaption class="caption">
+              Ground rover equipped with LiDAR for close-range infrastructure
+              inspection.
+            </figcaption>
+          </figure>
+
+          <figure class="card media-card">
+            <img
+              src="assets/workflow.png"
+              alt="Rover inspection workflow"
+            />
+            <figcaption class="caption">
+              Deployment, scanning, reconstruction, change detection, and
+              maintenance prioritization.
+            </figcaption>
+          </figure>
         </div>
+
+        <!-- Existing capabilities -->
         <div class="grid three" style="margin-top:1.25rem;">
-          <article class="card highlight"><h3>Ground mobility</h3><p>A four-wheel-drive unmanned ground vehicle moves through array rows for close-range inspection.</p></article>
-          <article class="card highlight"><h3>LiDAR and SLAM</h3><p>LiDAR sensing and SLAM-based mapping produce point clouds for repeatable geometry checks.</p></article>
-          <article class="card highlight"><h3>Articulated sensing</h3><p>An articulated sensor mount improves viewpoint flexibility and reduces occlusion.</p></article>
+          <article class="card highlight">
+            <h3>Ground mobility</h3>
+            <p>
+              A four-wheel-drive unmanned ground vehicle moves through array
+              rows for close-range inspection.
+            </p>
+          </article>
+
+          <article class="card highlight">
+            <h3>LiDAR and SLAM</h3>
+            <p>
+              LiDAR sensing and SLAM-based mapping produce point clouds for
+              repeatable geometry checks.
+            </p>
+          </article>
+
+          <article class="card highlight">
+            <h3>Articulated sensing</h3>
+            <p>
+              An articulated sensor mount improves viewpoint flexibility and
+              reduces occlusion.
+            </p>
+          </article>
         </div>
+
+        <!-- Existing configuration and pipeline images -->
         <div class="grid two" style="margin-top:1.25rem;">
-          <figure class="card media-card"><img src="assets/rover-new.png" alt="LiDAR placement and angle-of-view configurations" /><figcaption class="caption">LiDAR placement and angle-of-view configurations.</figcaption></figure>
-          <figure class="card media-card"><img src="assets/pipeline.png" alt="LiDAR SLAM and waypoint navigation pipeline" /><figcaption class="caption">Mapping, planning, navigation, and waypoint-based inspection.</figcaption></figure>
+          <figure class="card media-card">
+            <img
+              src="assets/rover-new.png"
+              alt="LiDAR placement and angle-of-view configurations"
+            />
+            <figcaption class="caption">
+              LiDAR placement and angle-of-view configurations.
+            </figcaption>
+          </figure>
+
+          <figure class="card media-card">
+            <img
+              src="assets/pipeline.png"
+              alt="LiDAR SLAM and waypoint navigation pipeline"
+            />
+            <figcaption class="caption">
+              Mapping, planning, navigation, and waypoint-based inspection.
+            </figcaption>
+          </figure>
         </div>
+
+        <!-- Existing inspection targets and workflow -->
         <div class="grid two" style="margin-top:1.25rem;">
-          <article class="card"><div class="label">Inspection Targets</div><h3>What the rover can help detect</h3><ul class="feature-list"><li>Panel displacement, tilt change, or misalignment.</li><li>Frame deformation and support movement after wind or impact events.</li><li>Vegetation encroachment and obstruction near panel rows.</li><li>Terrain settlement and clearance reduction.</li><li>Repeatable geometric change between inspection cycles.</li></ul></article>
-          <article class="card"><div class="label">Workflow</div><h3>From scanning to decision support</h3><ul class="feature-list"><li>Navigate to predefined waypoints.</li><li>Acquire LiDAR scans from multiple viewpoints.</li><li>Register scans into a point cloud.</li><li>Compare repeated scans to identify changes.</li><li>Integrate spatial observations with inverter and environmental data.</li></ul></article>
+          <article class="card">
+            <div class="label">Inspection Targets</div>
+            <h3>What the rover can help detect</h3>
+
+            <ul class="feature-list">
+              <li>Panel displacement, tilt change, or misalignment.</li>
+              <li>
+                Frame deformation and support movement after wind or impact
+                events.
+              </li>
+              <li>
+                Vegetation encroachment and obstruction near panel rows.
+              </li>
+              <li>Terrain settlement and clearance reduction.</li>
+              <li>
+                Repeatable geometric change between inspection cycles.
+              </li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="label">Workflow</div>
+            <h3>From scanning to decision support</h3>
+
+            <ul class="feature-list">
+              <li>Navigate to predefined waypoints.</li>
+              <li>Acquire LiDAR scans from multiple viewpoints.</li>
+              <li>Register scans into a point cloud.</li>
+              <li>Compare repeated scans to identify changes.</li>
+              <li>
+                Integrate spatial observations with inverter and environmental
+                data.
+              </li>
+            </ul>
+          </article>
         </div>
+
+        <!-- New LiDAR point-cloud results -->
+        <div style="margin-top:3rem;">
+
+          <div class="label">LiDAR Results</div>
+          <h2>Solar Testbed Point-Cloud Reconstruction</h2>
+
+          <p>
+            The rover-mounted LiDAR collected raw spatial data from the solar
+            testbed and its surrounding environment. The raw dataset initially
+            included background objects, isolated noise, and points beyond the
+            testbed itself. After registering the scans, removing outliers,
+            cleaning the surrounding data, and cropping the dataset to the area
+            of interest, we obtained the final point cloud of the photovoltaic
+            modules and supporting structure.
+          </p>
+
+          <p>
+            This cleaned point cloud provides a geometric representation of the
+            testbed and establishes a baseline for future repeat inspections,
+            deformation assessment, and scan-to-scan change detection.
+          </p>
+
+          <!-- Large cleaned point-cloud image -->
+          <figure
+            class="card media-card"
+            style="margin-top:1.5rem;"
+          >
+            <img
+              src="assets/point_cloud_cloudcompare.png"
+              alt="Final cleaned point cloud of the solar testbed"
+              style="width:100%; height:auto; max-height:none;"
+            />
+
+            <figcaption class="caption">
+              <strong>Final cleaned solar testbed point cloud.</strong>
+              After processing the raw LiDAR data, background features,
+              isolated noise, and points outside the testbed area were removed.
+              The resulting point cloud isolates the photovoltaic modules,
+              supporting frame, and adjacent ground surface for further
+              geometric analysis.
+            </figcaption>
+          </figure>
+
+          <!-- Multiple processed views -->
+          <div style="margin-top:2.5rem;">
+            <div class="label">Processed Views</div>
+            <h2>Solar Testbed from Multiple Perspectives</h2>
+
+            <p>
+              The cleaned point cloud was visualized from multiple directions
+              to better examine the geometry of the testbed. The
+              three-dimensional and orthographic views provide complementary
+              perspectives for assessing panel inclination, structural
+              alignment, support geometry, clearances, and the overall spatial
+              configuration of the system.
+            </p>
+          </div>
+
+          <div class="grid two" style="margin-top:1.5rem;">
+
+            <figure class="card media-card">
+              <img
+                src="assets/01_3d_view.png"
+                alt="Three-dimensional view of the solar testbed point cloud"
+              />
+
+              <figcaption class="caption">
+                <strong>Three-dimensional view.</strong>
+                The reconstructed point cloud shows the overall spatial
+                relationship between the photovoltaic modules, inclined
+                supports, base frame, and surrounding ground surface. The
+                elevation-based color gradient helps distinguish the lower
+                structural elements from the elevated panel surfaces.
+              </figcaption>
+            </figure>
+
+            <figure class="card media-card">
+              <img
+                src="assets/04_front_view.png"
+                alt="Front view of the solar testbed point cloud"
+              />
+
+              <figcaption class="caption">
+                <strong>Front view.</strong>
+                This view shows the two photovoltaic modules and their
+                supporting structure from the front. It supports visual
+                evaluation of module elevation, relative alignment, support
+                geometry, and differences across the width of the testbed.
+              </figcaption>
+            </figure>
+
+            <figure class="card media-card">
+              <img
+                src="assets/03_side_view.png"
+                alt="Side view of the solar testbed point cloud"
+              />
+
+              <figcaption class="caption">
+                <strong>Side view.</strong>
+                The side projection highlights the inclination of the modules,
+                the geometry of the supporting members, and the vertical
+                clearance between the panels, structural frame, and ground
+                surface.
+              </figcaption>
+            </figure>
+
+            <figure class="card media-card">
+              <img
+                src="assets/02_top_view.png"
+                alt="Top view of the solar testbed point cloud"
+              />
+
+              <figcaption class="caption">
+                <strong>Top view.</strong>
+                This plan-view projection shows the overall testbed footprint,
+                module arrangement, supporting members, and spatial
+                distribution of the captured LiDAR points across the scanned
+                area.
+              </figcaption>
+            </figure>
+
+          </div>
+
+        </div>
+
       </div>
     </section>
   </main>
-  <footer><div class="container"><div><strong>UC Berkeley Solar Energy Testbed</strong></div><div><a href="index.html">Back to overview</a></div></div></footer>
+
+  <footer>
+    <div class="container">
+      <div>
+        <strong>UC Berkeley Solar Energy Testbed</strong>
+      </div>
+
+      <div>
+        <a href="index.html">Back to overview</a>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
