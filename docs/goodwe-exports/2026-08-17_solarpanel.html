@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solar Panel 2026-08-17</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --grid: rgba(148, 163, 184, 0.18);
+      --border: #dbe3ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 20px 12px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      margin-bottom: 22px;
+    }
+    .header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .title {
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 700;
+      margin: 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+      text-align: right;
+    }
+    .subcopy {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .status-note {
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #eef4fb;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .chart-box {
+      position: relative;
+      height: min(68vh, 680px);
+      min-height: 380px;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="status-note">The export contains timestamped power samples for this day.</div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Solar Panel</h1>
+          <div class="meta">2026-08-17 PV</div>
+          <p class="subcopy">PV output power measured from the solar generation side.</p>
+        </div>
+        <div class="meta">Hover to inspect values</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="powerChart"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Outlet Load</h1>
+          <div class="meta">2026-08-17 Load</div>
+          <p class="subcopy">Load represents the power consumed by devices connected to the outlet side of the testbed.</p>
+        </div>
+        <div class="meta">Socket-side power draw</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="loadChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.js"></script>
+  <script>
+    const labels = ["00:00", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25", "15:30", "15:35", "15:40", "15:45", "15:50", "15:55", "16:00", "16:05", "16:10", "16:15", "16:20", "16:25", "16:30", "16:35", "16:40", "16:45", "16:50", "16:55", "17:00", "17:05", "17:10", "17:15", "17:20", "17:25", "17:30", "17:35", "17:40", "17:45", "17:50", "17:55", "18:00", "18:05", "18:10", "18:15", "18:20", "18:25", "18:40", "21:35", "21:40", "22:00", "22:05", "22:50"];
+    const fullTimes = ["08.17.2026 00:00:00", "08.17.2026 07:35:00", "08.17.2026 07:40:00", "08.17.2026 07:45:00", "08.17.2026 07:50:00", "08.17.2026 07:55:00", "08.17.2026 08:00:00", "08.17.2026 08:05:00", "08.17.2026 08:10:00", "08.17.2026 08:15:00", "08.17.2026 08:20:00", "08.17.2026 08:25:00", "08.17.2026 08:30:00", "08.17.2026 08:35:00", "08.17.2026 08:40:00", "08.17.2026 08:45:00", "08.17.2026 08:50:00", "08.17.2026 08:55:00", "08.17.2026 09:00:00", "08.17.2026 09:05:00", "08.17.2026 09:10:00", "08.17.2026 09:15:00", "08.17.2026 09:20:00", "08.17.2026 09:25:00", "08.17.2026 09:30:00", "08.17.2026 09:35:00", "08.17.2026 09:40:00", "08.17.2026 09:45:00", "08.17.2026 09:50:00", "08.17.2026 09:55:00", "08.17.2026 10:00:00", "08.17.2026 10:05:00", "08.17.2026 10:10:00", "08.17.2026 10:15:00", "08.17.2026 10:20:00", "08.17.2026 10:25:00", "08.17.2026 10:30:00", "08.17.2026 10:35:00", "08.17.2026 10:40:00", "08.17.2026 10:45:00", "08.17.2026 10:50:00", "08.17.2026 10:55:00", "08.17.2026 11:00:00", "08.17.2026 11:05:00", "08.17.2026 11:10:00", "08.17.2026 11:15:00", "08.17.2026 11:20:00", "08.17.2026 11:25:00", "08.17.2026 11:30:00", "08.17.2026 11:35:00", "08.17.2026 11:40:00", "08.17.2026 11:45:00", "08.17.2026 11:50:00", "08.17.2026 11:55:00", "08.17.2026 12:00:00", "08.17.2026 12:05:00", "08.17.2026 12:10:00", "08.17.2026 12:15:00", "08.17.2026 12:20:00", "08.17.2026 12:25:00", "08.17.2026 12:30:00", "08.17.2026 12:35:00", "08.17.2026 12:40:00", "08.17.2026 12:45:00", "08.17.2026 12:50:00", "08.17.2026 12:55:00", "08.17.2026 13:00:00", "08.17.2026 13:05:00", "08.17.2026 13:10:00", "08.17.2026 13:15:00", "08.17.2026 13:20:00", "08.17.2026 13:25:00", "08.17.2026 13:30:00", "08.17.2026 13:35:00", "08.17.2026 13:40:00", "08.17.2026 13:45:00", "08.17.2026 13:50:00", "08.17.2026 13:55:00", "08.17.2026 14:00:00", "08.17.2026 14:05:00", "08.17.2026 14:10:00", "08.17.2026 14:15:00", "08.17.2026 14:20:00", "08.17.2026 14:25:00", "08.17.2026 14:30:00", "08.17.2026 14:35:00", "08.17.2026 14:40:00", "08.17.2026 14:45:00", "08.17.2026 14:50:00", "08.17.2026 14:55:00", "08.17.2026 15:00:00", "08.17.2026 15:05:00", "08.17.2026 15:10:00", "08.17.2026 15:15:00", "08.17.2026 15:20:00", "08.17.2026 15:25:00", "08.17.2026 15:30:00", "08.17.2026 15:35:00", "08.17.2026 15:40:00", "08.17.2026 15:45:00", "08.17.2026 15:50:00", "08.17.2026 15:55:00", "08.17.2026 16:00:00", "08.17.2026 16:05:00", "08.17.2026 16:10:00", "08.17.2026 16:15:00", "08.17.2026 16:20:00", "08.17.2026 16:25:00", "08.17.2026 16:30:00", "08.17.2026 16:35:00", "08.17.2026 16:40:00", "08.17.2026 16:45:00", "08.17.2026 16:50:00", "08.17.2026 16:55:00", "08.17.2026 17:00:00", "08.17.2026 17:05:00", "08.17.2026 17:10:00", "08.17.2026 17:15:00", "08.17.2026 17:20:00", "08.17.2026 17:25:00", "08.17.2026 17:30:00", "08.17.2026 17:35:00", "08.17.2026 17:40:00", "08.17.2026 17:45:00", "08.17.2026 17:50:00", "08.17.2026 17:55:00", "08.17.2026 18:00:00", "08.17.2026 18:05:00", "08.17.2026 18:10:00", "08.17.2026 18:15:00", "08.17.2026 18:20:00", "08.17.2026 18:25:00", "08.17.2026 18:40:00", "08.17.2026 21:35:00", "08.17.2026 21:40:00", "08.17.2026 22:00:00", "08.17.2026 22:05:00", "08.17.2026 22:50:00"];
+    const pvDatasets = [{
+      label: 'PV',
+      data: [null, 0.0, 0.0, 0.0, 25.11, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 38.309999999999995, 0.0, 38.199999999999996, 37.830000000000005, 36.53, 30.96, 35.88, 37.66, 41.78, 42.2, 38.67, 0.0, 38.91, 0.0, 40.739999999999995, 40.050000000000004, 39.379999999999995, 0.0, 0.0, 40.910000000000004, 0.0, 0.0, 0.0, 0.0, 39.96, 0.0, 41.54, 0.0, 41.83, 40.9, 42.5, 41.8, 41.97, 0.0, 41.67, 0.0, 0.0, 0.0, 0.0, 43.35, 0.0, 0.0, 0.0, 0.0, 42.0, 43.05, 0.0, 42.28, 41.61, 43.75, 0.0, 0.0, 0.0, 0.0, 43.85, 42.38, 0.0, 41.209999999999994, 0.0, 0.0, 0.0, 0.0, 43.42, 0.0, 0.0, 0.0, 0.0, 0.0, 39.849999999999994, 39.629999999999995, 39.54, 0.0, 39.58, 40.0, 39.43, 40.59, 40.980000000000004, 0.0, 41.15, 0.0, 0.0, 43.01, 0.0, 0.0, 0.0, 42.72, 41.58, 0.0, 38.800000000000004, 38.4, 38.42, 36.58, 36.39, 35.45, 34.33, 32.76, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 32.870000000000005, 32.82, 34.45, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, null, 0.0, 0.0],
+      borderColor: '#10b7d8',
+      backgroundColor: 'rgba(16, 183, 216, 0.16)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      yAxisID: 'y'
+    }];
+
+    const loadDatasets = [{
+      label: 'Outlet Load',
+      data: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+      borderColor: '#f59e0b',
+      backgroundColor: 'rgba(245, 158, 11, 0.18)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      yAxisID: 'y'
+    }];
+
+    function buildChart(canvasId, datasets) {
+      return new Chart(document.getElementById(canvasId), {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: 10,
+                boxHeight: 10,
+                padding: 18,
+                color: '#1f2937'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title(items) {
+                  return items.length ? fullTimes[items[0].dataIndex] : '';
+                },
+                label(context) {
+                  const label = context.dataset.label || '';
+                  const value = context.raw == null ? '-' : context.raw;
+                  return label + ': ' + value + ' W';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148, 163, 184, 0.12)' },
+              ticks: {
+                color: '#475569',
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 14
+              }
+            },
+            y: {
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Watts',
+                color: '#475569'
+              },
+              grid: { color: 'rgba(148, 163, 184, 0.18)' },
+              ticks: { color: '#475569' }
+            }
+          }
+        }
+      });
+    }
+
+    buildChart('powerChart', pvDatasets);
+    buildChart('loadChart', loadDatasets);
+  </script>
+</body>
+</html>
