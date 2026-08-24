@@ -274,6 +274,8 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
     labels = [point.time_label for point in series]
     full_times = [point.full_time for point in series]
     pv_data = [point.pv for point in series]
+    soc_data = [point.soc for point in series]
+    battery_data = [point.battery for point in series]
     load_data = [point.load for point in series]
     has_data = bool(series)
     status_text = (
@@ -383,11 +385,37 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
     <div class="panel">
       <div class="header">
         <div>
-          <h1 class="title">Outlet Load</h1>
-          <div class="meta">{escape_html(ymd)} Load</div>
-          <p class="subcopy">Load represents the power consumed by devices connected to the outlet side of the testbed.</p>
+          <h1 class="title">Battery State of Charge</h1>
+          <div class="meta">{escape_html(ymd)} SOC</div>
+          <p class="subcopy">SOC shows the battery's available charge as a percentage of its usable capacity.</p>
         </div>
-        <div class="meta">Socket-side power draw</div>
+        <div class="meta">Battery charge level</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="socChart"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Battery Power</h1>
+          <div class="meta">{escape_html(ymd)} Battery</div>
+          <p class="subcopy">Battery power reported by SEMS. Positive and negative values indicate opposite power-flow directions.</p>
+        </div>
+        <div class="meta">Charge and discharge power</div>
+      </div>
+      <div class="chart-box">
+        <canvas id="batteryChart"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h1 class="title">Load Power</h1>
+          <div class="meta">{escape_html(ymd)} Load</div>
+          <p class="subcopy">Load power is the site consumption reported by the GoodWe SEMS platform.</p>
+        </div>
+        <div class="meta">SEMS site consumption</div>
       </div>
       <div class="chart-box">
         <canvas id="loadChart"></canvas>
@@ -412,7 +440,7 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
     }}];
 
     const loadDatasets = [{{
-      label: 'Outlet Load',
+      label: 'Load Power',
       data: {json.dumps(load_data)},
       borderColor: '#f59e0b',
       backgroundColor: 'rgba(245, 158, 11, 0.18)',
@@ -424,7 +452,34 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
       yAxisID: 'y'
     }}];
 
-    function buildChart(canvasId, datasets) {{
+    const socDatasets = [{{
+      label: 'Battery SOC',
+      data: {json.dumps(soc_data)},
+      borderColor: '#8b5cf6',
+      backgroundColor: 'rgba(139, 92, 246, 0.16)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      unit: '%',
+      yAxisID: 'y'
+    }}];
+
+    const batteryDatasets = [{{
+      label: 'Battery Power',
+      data: {json.dumps(battery_data)},
+      borderColor: '#22c55e',
+      backgroundColor: 'rgba(34, 197, 94, 0.16)',
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHitRadius: 16,
+      tension: 0.15,
+      yAxisID: 'y'
+    }}];
+
+    function buildChart(canvasId, datasets, axisTitle = 'Watts', suggestedMin, suggestedMax) {{
       return new Chart(document.getElementById(canvasId), {{
         type: 'line',
         data: {{ labels, datasets }},
@@ -455,7 +510,8 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
                 label(context) {{
                   const label = context.dataset.label || '';
                   const value = context.raw == null ? '-' : context.raw;
-                  return label + ': ' + value + ' W';
+                  const unit = context.dataset.unit || ' W';
+                  return label + ': ' + value + unit;
                 }}
               }}
             }}
@@ -472,9 +528,11 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
             }},
             y: {{
               position: 'left',
+              suggestedMin,
+              suggestedMax,
               title: {{
                 display: true,
-                text: 'Watts',
+                text: axisTitle,
                 color: '#475569'
               }},
               grid: {{ color: 'rgba(148, 163, 184, 0.18)' }},
@@ -486,6 +544,8 @@ def build_chart_html(*, ymd: str, plant_name: str, series: list[Point]) -> str:
     }}
 
     buildChart('powerChart', pvDatasets);
+    buildChart('socChart', socDatasets, 'State of Charge (%)', 0, 100);
+    buildChart('batteryChart', batteryDatasets);
     buildChart('loadChart', loadDatasets);
   </script>
 </body>
@@ -520,10 +580,15 @@ def write_sems_plus_workbook(
     aliases = {
         "pv": ("pSystem", "pv", "solar"),
         "soc": ("soc", "batterySoc"),
-        "battery": ("pBattery", "battery"),
-        "grid": ("pGrid", "grid"),
-        "load": ("pLoad", "load"),
+        "battery": ("pBattery", "pBat", "pStorage", "battery", "batteryPower"),
+        "grid": ("pGrid", "pMeter", "grid", "gridPower", "meterPower"),
+        "load": ("pConsum", "pLoad", "load"),
     }
+
+    print(
+        "SEMS+ power series received:",
+        ", ".join(series_by_item) if series_by_item else "none",
+    )
 
     values: dict[str, dict[str, float | None]] = {}
     all_times: set[str] = set()
