@@ -90,6 +90,15 @@ def format_page_date(value: date) -> str:
     return value.strftime("%m.%d.%Y")
 
 
+def date_variants(value: date) -> tuple[str, ...]:
+    return (
+        value.strftime("%Y-%m-%d"),
+        value.strftime("%m.%d.%Y"),
+        value.strftime("%m/%d/%Y"),
+        value.strftime("%d/%m/%Y"),
+    )
+
+
 def parse_page_date(value: str) -> date | None:
     value = value.strip()
     if not re.fullmatch(r"\d{2}\.\d{2}\.\d{4}", value):
@@ -894,6 +903,10 @@ def move_to_target_date(page: Page, latest_date: date, target_date: date, platfo
 def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> Path:
     if platform == "plus":
         captured: list[dict[str, Any]] = []
+        requested_date = parse_ymd(ymd)
+        if requested_date is None:
+            raise RuntimeError(f"invalid export date: {ymd}")
+        requested_date_variants = date_variants(requested_date)
 
         def capture_power_response(response: Any) -> None:
             if response.request.method != "POST":
@@ -939,9 +952,12 @@ def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> P
             (
                 item
                 for item in reversed(captured)
-                if ymd in json.dumps(item["post_data"], default=str)
+                if any(
+                    variant in json.dumps(item["post_data"], default=str)
+                    for variant in requested_date_variants
+                )
                 or any(
-                    str(point.get("tp") or "").startswith(ymd)
+                    str(point.get("tp") or "").startswith(requested_date_variants)
                     for series in ((item["response"].get("data") or {}).get("dataList") or [])
                     if isinstance(series, dict)
                     for point in (series.get("powerData") or [])
@@ -950,16 +966,13 @@ def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> P
             ),
             None,
         )
-        # The date-change request for the requested day is the final request in
-        # the toggle sequence. Some SEMS+ deployments omit the date from the
-        # request body and return an empty series, so it cannot be matched by
-        # timestamp; in that case use the last structurally valid response.
-        if not matching and captured:
-            matching = captured[-1]
         if not matching:
+            captured_urls = ", ".join(
+                dict.fromkeys(item["url"] for item in captured)
+            ) or "none"
             raise RuntimeError(
                 f"SEMS+ power response was not captured for {ymd}; "
-                "no POST response contained data.dataList"
+                f"captured dataList endpoints: {captured_urls}"
             )
         print(f"[{ymd}] Captured SEMS+ power API: {matching['url']}")
         response_json = matching["response"]
