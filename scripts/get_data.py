@@ -826,11 +826,41 @@ def is_right_button_disabled(page: Page, platform: str) -> bool:
     return bool(page.locator(".station-date-picker_right").evaluate("el => el.disabled"))
 
 
-def click_date_button(page: Page, selector: str, platform: str) -> None:
+def capture_sems_plus_response(response: Any, captured: list[dict[str, Any]]) -> None:
+    if response.request.method != "POST":
+        return
+    try:
+        response_json = response.json()
+        data_lists = ((response_json.get("data") or {}).get("dataList"))
+        if not isinstance(data_lists, list):
+            return
+        try:
+            post_data = json.loads(response.request.post_data or "{}")
+        except (TypeError, json.JSONDecodeError):
+            post_data = {"raw": response.request.post_data or ""}
+        captured.append(
+            {
+                "url": response.url,
+                "post_data": post_data,
+                "response": response_json,
+            }
+        )
+    except Exception:
+        return
+
+
+def click_date_button(
+    page: Page,
+    selector: str,
+    platform: str,
+    captured: list[dict[str, Any]] | None = None,
+) -> None:
     if platform == "plus":
         responses: list[str] = []
 
         def record_response(response: Any) -> None:
+            if captured is not None:
+                capture_sems_plus_response(response, captured)
             if response.request.method == "POST" and (
                 "station" in response.url.lower()
                 or "chart" in response.url.lower()
@@ -856,18 +886,28 @@ def click_date_button(page: Page, selector: str, platform: str) -> None:
     sleep(1500)
 
 
-def move_to_latest_date(page: Page, platform: str) -> date:
+def move_to_latest_date(
+    page: Page,
+    platform: str,
+    captured: list[dict[str, Any]] | None = None,
+) -> date:
     right_selector = (
         '#chartBox [aria-label="caret-right"]'
         if platform == "plus"
         else ".station-date-picker_right"
     )
     while not is_right_button_disabled(page, platform):
-        click_date_button(page, right_selector, platform)
+        click_date_button(page, right_selector, platform, captured)
     return get_current_page_date(page, platform)
 
 
-def move_to_target_date(page: Page, latest_date: date, target_date: date, platform: str) -> date:
+def move_to_target_date(
+    page: Page,
+    latest_date: date,
+    target_date: date,
+    platform: str,
+    captured: list[dict[str, Any]] | None = None,
+) -> date:
     offset = diff_days(latest_date, target_date)
     if offset < 0:
         raise RuntimeError(
@@ -889,7 +929,7 @@ def move_to_target_date(page: Page, latest_date: date, target_date: date, platfo
             if platform == "plus"
             else ".station-date-picker_left"
         )
-        click_date_button(page, left_selector, platform)
+        click_date_button(page, left_selector, platform, captured)
 
     current = get_current_page_date(page, platform)
     if format_ymd(current) != format_ymd(target_date):
@@ -900,37 +940,22 @@ def move_to_target_date(page: Page, latest_date: date, target_date: date, platfo
     return current
 
 
-def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> Path:
+def export_current_date(
+    page: Page,
+    out_dir: Path,
+    ymd: str,
+    platform: str,
+    captured: list[dict[str, Any]] | None = None,
+) -> Path:
     if platform == "plus":
-        captured: list[dict[str, Any]] = []
+        captured = captured if captured is not None else []
         requested_date = parse_ymd(ymd)
         if requested_date is None:
             raise RuntimeError(f"invalid export date: {ymd}")
         requested_date_variants = date_variants(requested_date)
 
         def capture_power_response(response: Any) -> None:
-            if response.request.method != "POST":
-                return
-            try:
-                response_json = response.json()
-                data_lists = ((response_json.get("data") or {}).get("dataList"))
-                if not isinstance(data_lists, list):
-                    return
-
-                try:
-                    post_data = json.loads(response.request.post_data or "{}")
-                except (TypeError, json.JSONDecodeError):
-                    post_data = {"raw": response.request.post_data or ""}
-
-                captured.append(
-                    {
-                        "url": response.url,
-                        "post_data": post_data,
-                        "response": response_json,
-                    }
-                )
-            except Exception:
-                return
+            capture_sems_plus_response(response, captured)
 
         page.on("response", capture_power_response)
         try:
@@ -1096,12 +1121,17 @@ def main() -> None:
             ),
         )
         page = context.new_page()
+        sems_plus_responses: list[dict[str, Any]] = []
 
         try:
             login(page, username, password, platform)
             open_power_page(page, target_url, platform)
 
-            latest_remote_date = move_to_latest_date(page, platform)
+            latest_remote_date = move_to_latest_date(
+                page,
+                platform,
+                sems_plus_responses,
+            )
             print("Remote latest date:", format_ymd(latest_remote_date))
 
             if mode == "date" and explicit_date > latest_remote_date:
@@ -1133,10 +1163,22 @@ def main() -> None:
 
             for ymd in target_dates:
                 target_date = parse_ymd(ymd)
-                move_to_target_date(page, latest_remote_date, target_date, platform)
+                move_to_target_date(
+                    page,
+                    latest_remote_date,
+                    target_date,
+                    platform,
+                    sems_plus_responses,
+                )
                 page_date = get_current_page_date(page, platform)
                 print(f"[{ymd}] Page date is {format_ymd(page_date)} ({format_page_date(page_date)})")
-                export_current_date(page, out_dir, ymd, platform)
+                export_current_date(
+                    page,
+                    out_dir,
+                    ymd,
+                    platform,
+                    sems_plus_responses,
+                )
 
             update_energy_page(out_dir)
             print("Done")
