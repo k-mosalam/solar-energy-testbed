@@ -857,6 +857,7 @@ def click_date_button(
 ) -> None:
     if platform == "plus":
         responses: list[str] = []
+        capture_start = len(captured) if captured is not None else 0
 
         def record_response(response: Any) -> None:
             if captured is not None:
@@ -874,8 +875,13 @@ def click_date_button(
             sleep(2000)
         finally:
             page.remove_listener("response", record_response)
+        page_date = format_ymd(get_current_page_date(page, "plus"))
+        if captured is not None:
+            for item in captured[capture_start:]:
+                item["page_date"] = page_date
         for url in dict.fromkeys(responses):
             print("SEMS+ date-change API:", url)
+        print("SEMS+ date after change:", page_date)
         return
 
     with page.expect_response(
@@ -977,7 +983,8 @@ def export_current_date(
             (
                 item
                 for item in reversed(captured)
-                if any(
+                if item.get("page_date") == ymd
+                or any(
                     variant in json.dumps(item["post_data"], default=str)
                     for variant in requested_date_variants
                 )
