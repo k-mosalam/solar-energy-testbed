@@ -1130,6 +1130,12 @@ def main() -> None:
         page = context.new_page()
         sems_plus_responses: list[dict[str, Any]] = []
 
+        def capture_session_response(response: Any) -> None:
+            capture_sems_plus_response(response, sems_plus_responses)
+
+        if platform == "plus":
+            page.on("response", capture_session_response)
+
         try:
             login(page, username, password, platform)
             open_power_page(page, target_url, platform)
@@ -1190,6 +1196,8 @@ def main() -> None:
             update_energy_page(out_dir)
             print("Done")
         finally:
+            if platform == "plus":
+                page.remove_listener("response", capture_session_response)
             browser.close()
 
 
