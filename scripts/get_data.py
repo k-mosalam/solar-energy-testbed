@@ -896,13 +896,24 @@ def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> P
         captured: list[dict[str, Any]] = []
 
         def capture_power_response(response: Any) -> None:
-            if "statisticsAndPreV2" not in response.url:
+            if response.request.method != "POST":
                 return
             try:
+                response_json = response.json()
+                data_lists = ((response_json.get("data") or {}).get("dataList"))
+                if not isinstance(data_lists, list):
+                    return
+
+                try:
+                    post_data = json.loads(response.request.post_data or "{}")
+                except (TypeError, json.JSONDecodeError):
+                    post_data = {"raw": response.request.post_data or ""}
+
                 captured.append(
                     {
-                        "post_data": json.loads(response.request.post_data or "{}"),
-                        "response": response.json(),
+                        "url": response.url,
+                        "post_data": post_data,
+                        "response": response_json,
                     }
                 )
             except Exception:
@@ -928,12 +939,29 @@ def export_current_date(page: Page, out_dir: Path, ymd: str, platform: str) -> P
             (
                 item
                 for item in reversed(captured)
-                if str(item["post_data"].get("startTime", "")).startswith(ymd)
+                if ymd in json.dumps(item["post_data"], default=str)
+                or any(
+                    str(point.get("tp") or "").startswith(ymd)
+                    for series in ((item["response"].get("data") or {}).get("dataList") or [])
+                    if isinstance(series, dict)
+                    for point in (series.get("powerData") or [])
+                    if isinstance(point, dict)
+                )
             ),
             None,
         )
+        # The date-change request for the requested day is the final request in
+        # the toggle sequence. Some SEMS+ deployments omit the date from the
+        # request body and return an empty series, so it cannot be matched by
+        # timestamp; in that case use the last structurally valid response.
+        if not matching and captured:
+            matching = captured[-1]
         if not matching:
-            raise RuntimeError(f"SEMS+ power response was not captured for {ymd}")
+            raise RuntimeError(
+                f"SEMS+ power response was not captured for {ymd}; "
+                "no POST response contained data.dataList"
+            )
+        print(f"[{ymd}] Captured SEMS+ power API: {matching['url']}")
         response_json = matching["response"]
         if response_json.get("code") != "00000":
             raise RuntimeError(f"SEMS+ power API failed for {ymd}: {response_json}")
