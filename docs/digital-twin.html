@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Twin | UC Berkeley Solar Energy Testbed</title>
+  <meta name="description" content="Interactive 3D digital twin of the testbed: LiDAR rover scans with measured PV panel tilt." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .twin-frame {
+      width: 100%;
+      height: min(82vh, 860px);
+      min-height: 560px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      background: #1b2530;
+      box-shadow: var(--shadow);
+    }
+    .twin-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .twin-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 0 0 1.25rem; }
+    .twin-actions .button.secondary { color: var(--berkeley-blue); border-color: var(--line); background: white; }
+    .tilt-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    .tilt-table th, .tilt-table td { padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); text-align: right; }
+    .tilt-table th:first-child, .tilt-table td:first-child { text-align: left; }
+    .tilt-table th { color: var(--muted); font-weight: 600; }
+    @media (max-width: 760px) { .twin-frame { height: 78vh; min-height: 480px; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="index.html" aria-label="Solar testbed home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>UC Berkeley Solar Energy Testbed</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Overview</a>
+        <a href="paper.html">Paper</a>
+        <a href="testbed.html">Testbed</a>
+        <a href="monitoring.html">Monitoring</a>
+        <a href="energy.html">Energy Generation</a>
+        <a href="inspection.html">Inspection</a>
+        <a href="digital-twin.html">Digital Twin</a>
+        <a href="environmental.html">Stressors</a>
+        <a href="team.html">Team</a>
+        <a href="acknowledgements.html">Acknowledgements</a>
+        <a href="gallery.html">Gallery</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero compact">
+    <div class="hero-inner">
+      <div class="eyebrow">Digital Twin</div>
+      <h1>PV tilt scans in 3D.</h1>
+      <p>
+        LiDAR rover scans of the testbed, leveled to the local ground, with the fitted plane and measured tilt of each panel frame. Switch between the baseline and the two tilt scenarios to see the reconfigured frame move.
+      </p>
+    </div>
+  </section>
+
+  <main>
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <div class="label">Interactive Viewer</div>
+          <h2>Orbit, pan and zoom the point cloud.</h2>
+          <p class="muted">
+            Drag to orbit, right-drag to pan, and scroll to zoom. Use <strong>Profile, Unit B</strong> to look along the panel edge and see its slope against the ground. Colour by plane fit to check how flat each fitted surface is. The viewer may take a few seconds to load (about 13 MB of point data).
+          </p>
+        </div>
+
+        <div class="twin-actions">
+          <a class="button primary" href="digital-twin/pv-tilt-3d.html" target="_blank" rel="noopener">Open full screen</a>
+        </div>
+
+        <div class="twin-frame">
+          <iframe src="digital-twin/pv-tilt-3d.html" title="3D viewer of PV tilt LiDAR scans" loading="lazy" allowfullscreen></iframe>
+        </div>
+
+        <div class="grid two" style="margin-top:1.5rem;">
+          <article class="card highlight">
+            <div class="label">Measured Tilt</div>
+            <h3>Unit B, the reconfigured frame</h3>
+            <table class="tilt-table">
+              <thead><tr><th>Session</th><th>Tilt</th><th>Change from baseline</th></tr></thead>
+              <tbody>
+                <tr><td>Baseline</td><td>44.4°</td><td>&ndash;</td></tr>
+                <tr><td>First scenario</td><td>28.8°</td><td>&minus;15.6°</td></tr>
+                <tr><td>Second scenario</td><td>63.5°</td><td>+19.1°</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="card highlight">
+            <div class="label">Reference</div>
+            <h3>Unit A, the fixed frame</h3>
+            <table class="tilt-table">
+              <thead><tr><th>Session</th><th>Tilt</th><th>Drift</th></tr></thead>
+              <tbody>
+                <tr><td>Baseline</td><td>44.6°</td><td>&ndash;</td></tr>
+                <tr><td>First scenario</td><td>44.6°</td><td>+0.03°</td></tr>
+                <tr><td>Second scenario</td><td>44.7°</td><td>+0.12°</td></tr>
+              </tbody>
+            </table>
+            <p class="muted" style="margin-top:0.75rem;">Unit A was left untouched, so its drift is the repeatability of the measurement. Tilt is measured relative to the local ground; plane-fit RMS is 12&ndash;14 mm in every session.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div><strong>UC Berkeley Solar Energy Testbed</strong></div>
+      <div><a href="index.html">Back to overview</a></div>
+    </div>
+  </footer>
+</body>
+</html>
