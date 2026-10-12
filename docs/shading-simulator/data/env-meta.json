@@ -1,0 +1,33 @@
+{
+ "source": "Raw merged FAST-LIO2 scans of sessions 2026091401, 2026091402, 2026091403 (x y z only).",
+ "registration": "Levelled with the viewer's R and d, then rotated so Frame A faces south (same as the app).",
+ "frameBoxesRemoved": [
+  [
+   -1.75,
+   1.75,
+   -0.45,
+   1.85
+  ],
+  [
+   1.85,
+   5.35,
+   -0.75,
+   1.95
+  ]
+ ],
+ "terrain": {
+  "x0": -32.0,
+  "y0": -32.0,
+  "cell": 0.25,
+  "n": 256,
+  "noData": -32768,
+  "layout": "n*n int16 heights (mm, row-major, y then x), then n*n*3 uint8 sRGB colours"
+ },
+ "points": {
+  "count": 300069,
+  "recordBytes": 12,
+  "layout": "int16 x,y,z (mm), int8 normal x,y,z (/127), uint8 sRGB r,g,b"
+ },
+ "colours": "Inferred from local shape with a palette taken from a street-level photo of the site; the scans have no colour.",
+ "voxelM": 0.03
+}

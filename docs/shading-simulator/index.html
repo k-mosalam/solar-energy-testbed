@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RFS Shading Simulator</title>
+<meta name="description" content="Interactive 3D shading simulator for the STAIRlab PV testbed at Richmond Field Station: LiDAR-measured frames, a moving sun, an editable tree or overhang, and the daily loss it would cause. Illustrative planning tool.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23003262'/%3E%3Ccircle cx='23' cy='9' r='4' fill='%23FDB515'/%3E%3Cpath d='M4 25l6-11h14l-6 11z' fill='%2394a3b8'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">RFS</span>
+    <div><h1>RFS Shading Simulator</h1><p>STAIRlab PV testbed · Richmond Field Station · UC Berkeley</p></div>
+  </div>
+  <div class="topbar-right">
+    <span class="chip warn" title="Geometry-based estimates for planning and teaching. Thesis results come from paired electrical records.">Illustrative planning tool · not validated results</span>
+    <a href="https://k-mosalam.github.io/solar-energy-testbed/docs/index.html">← Testbed website</a>
+    <a href="https://k-mosalam.github.io/solar-energy-testbed/docs/digital-twin.html">LiDAR digital twin</a>
+    <a href="#about">About the model</a>
+  </div>
+</header>
+
+<div id="fatal" class="fatal" role="alert" hidden></div>
+
+<main class="layout">
+  <aside class="controls" aria-label="Simulator controls">
+    <section class="ctl">
+      <h2>Scenario</h2>
+      <div class="presets" id="presets"></div>
+    </section>
+
+    <section class="ctl">
+      <h2>Day</h2>
+      <label for="date">Date</label>
+      <input type="date" id="date">
+      <div class="row-buttons">
+        <button type="button" id="today" class="ghost">Today</button>
+        <button type="button" id="calday" class="ghost" title="Show the measured inverter record used to scale production">19 Aug · calibration day</button>
+      </div>
+    </section>
+
+    <section class="ctl">
+      <h2>Obstruction</h2>
+      <div class="segmented" role="group" aria-label="Obstruction type" id="objtype">
+        <button type="button" data-type="none">None</button>
+        <button type="button" data-type="tree">Tree</button>
+        <button type="button" data-type="pole">Pole</button>
+        <button type="button" data-type="overhang">Overhang</button>
+      </div>
+      <label for="anchor">In front of / above</label>
+      <select id="anchor"><option value="B">Frame B</option><option value="A">Frame A</option></select>
+      <div id="objfields"></div>
+      <button type="button" id="reseed" class="ghost small">New tree shape</button>
+      <p class="hint" id="objhint">Tip: drag the object in the 3D view to move it.</p>
+    </section>
+
+    <section class="ctl">
+      <h2>Frames &amp; baseline</h2>
+      <label for="session">Frame positions (LiDAR session, 14 Sep 2026)</label>
+      <select id="session"></select>
+      <label for="testframe">Test frame</label>
+      <select id="testframe"><option value="B">Frame B (adjustable)</option><option value="A">Frame A (fixed)</option></select>
+      <div class="field">
+        <div class="label-line"><label for="kratio">Frame ratio k̂ (test ÷ reference)</label><output id="kratio-out"></output></div>
+        <input type="range" id="kratio" min="0.95" max="1.05" step="0.005">
+      </div>
+      <p class="hint" id="calnote"></p>
+    </section>
+
+    <section class="ctl">
+      <h2>Daily loss rating</h2>
+      <p class="hint">Daily % = Q<sub>W</sub> ÷ E<sub>0,W</sub> over the tested window. Limits are operator inputs.</p>
+      <div class="thresholds">
+        <label><span class="dot yellow"></span>Yellow from <input type="number" id="t1" min="0" max="100" step="1"> %</label>
+        <label><span class="dot amber"></span>Amber from <input type="number" id="t2" min="0" max="100" step="1"> %</label>
+        <label><span class="dot red"></span>Red from <input type="number" id="t3" min="0" max="100" step="1"> %</label>
+        <label>Window: sun above <input type="number" id="welev" min="0" max="60" step="1"> °</label>
+      </div>
+    </section>
+
+    <section class="ctl">
+      <h2>Display</h2>
+      <label class="check"><input type="checkbox" id="opt-rays" checked> Sun rays</label>
+      <label class="check"><input type="checkbox" id="opt-heat"> Stripe shading map</label>
+      <label class="check"><input type="checkbox" id="opt-scenery" checked> Scanned surroundings</label>
+      <label class="check"><input type="checkbox" id="opt-lidar"> Raw frame scan points</label>
+      <label class="check"><input type="checkbox" id="opt-pole"> Scanned power pole casts shadows</label>
+    </section>
+
+    <details class="ctl">
+      <summary>Advanced</summary>
+      <label for="stripes">Cell stripe direction</label>
+      <select id="stripes"><option value="slope">Up the slope (along module length)</option><option value="across">Across the frame</option></select>
+      <label class="check"><input type="checkbox" id="curt-on"> Operating constraint (S4): cap output</label>
+      <div class="inline">
+        <label>from <input type="time" id="curt-from" step="600"></label>
+        <label>to <input type="number" id="curt-cap" min="0" max="1" step="0.01"> kW</label>
+      </div>
+      <div class="row-buttons">
+        <button type="button" id="export-csv" class="ghost small">Hourly CSV</button>
+        <button type="button" id="export-json" class="ghost small">Scenario JSON</button>
+      </div>
+    </details>
+  </aside>
+
+  <section class="stage">
+    <div class="viewport" id="viewport">
+      <div class="hud hud-tl" id="hud-time"></div>
+      <div class="hud hud-tr"><div class="rating" id="rating"></div></div>
+      <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+      <div class="hud hud-bl">
+        <div class="views" role="group" aria-label="Camera">
+          <button type="button" data-view="orbit" class="selected">3D</button>
+          <button type="button" data-view="sun" title="Look from the sun: what the sun sees is lit">Sun's view</button>
+          <button type="button" data-view="side">Side</button>
+          <button type="button" data-view="top">Top</button>
+        </div>
+      </div>
+      <div class="hud hud-br legend"><span><i class="lg a"></i>Frame A</span><span><i class="lg b"></i>Frame B</span><span><i class="lg ray"></i>Sunbeam</span><span><i class="lg blk"></i>Blocked beam</span></div>
+      <div class="loading" id="loading">Loading the testbed…</div>
+      <div class="envstatus" id="envstatus" hidden>Loading scanned surroundings…</div>
+    </div>
+
+    <div class="timeline">
+      <button type="button" id="play" class="play" aria-label="Play the day">▶</button>
+      <div class="slider-wrap">
+        <div class="window-band" id="wband"></div>
+        <input type="range" id="time" min="0" max="1439" step="1" aria-label="Time of day">
+      </div>
+      <output id="clock" class="clock">12:00</output>
+    </div>
+
+    <div class="cards">
+      <article class="card" id="card-A"></article>
+      <article class="card" id="card-B"></article>
+      <article class="card daily" id="card-day"></article>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>Power through the day</h2><p>Dashed: unshaded potential · solid: with the obstruction · click to set the time</p></div>
+        <div class="legend"><span><i class="lg a"></i>Frame A</span><span><i class="lg b"></i>Frame B</span><span id="rec-legend" hidden><i class="lg rec"></i>Inverter record (19 Aug)</span></div>
+      </div>
+      <div id="power-chart" class="chart"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>Hourly shortfall Q<sub>1h</sub></h2><p>Energy lost in each clock hour of the tested window</p></div></div>
+      <div id="hourly-chart" class="chart"></div>
+      <div class="table-wrap"><table id="hourly-table"></table></div>
+    </section>
+
+    <section class="panel about" id="about">
+      <h2>About the model</h2>
+      <div class="about-grid">
+        <div>
+          <h3>What this is</h3>
+          <p>A planning and teaching tool for the shading study: choose obstruction sizes and positions for test days and explain the method. In the thesis, shading loss is <strong>estimated from paired electrical records</strong> (test frame vs. reference frame × k̂), not predicted from geometry. Numbers here are illustrative.</p>
+          <h3>Geometry</h3>
+          <p>Frame outlines, tilts, heights and spacing come from the 14 Sep 2026 LiDAR plane fits (three sessions). The scan is not georeferenced, so each session is rotated so Frame A faces due south (protocol orientation); positions relative to Frame A are exactly as scanned. The surroundings (ground, pad, fence, power pole, building, vegetation) are the merged raw scans of all three sessions; the scans hold geometry only, so colours are inferred from local shape using a street-level photo of the site. Racks are modelled to dimensions measured in the scans. Only the obstruction you add (and optionally the scanned power pole) casts shadows in the calculation.</p>
+        </div>
+        <div>
+          <h3>Sun and clear sky</h3>
+          <p>NOAA solar position (agrees with NREL SPA to about 0.01°), Ineichen clear sky with monthly Linke turbidity, Hay–Davies sky diffuse and 0.2 ground albedo. Pacific time with daylight saving.</p>
+          <h3>Production</h3>
+          <p id="about-cal"></p>
+        </div>
+        <div>
+          <h3>Shading loss (approximation)</h3>
+          <p>Series 6 Plus modules are long, narrow CdTe cells in series with no bypass diodes, so the string current follows the <strong>most-shaded stripe</strong>. Each stripe receives beam + circumsolar light times the fraction that passes the obstruction, plus sky diffuse (minus the part of the sky the obstruction hides) and ground reflection. Output = weakest stripe ÷ unshaded. Leaves let some light through (canopy density). This is a first-order approximation, not a cell-level circuit model.</p>
+          <h3>Daily view</h3>
+          <p>Tested window: sun above the set elevation. Q<sub>W</sub> = unshaded − actual energy in the window (shading + any operating constraint), Q<sub>1h</sub> its hourly split, and daily % = Q<sub>W</sub> ÷ E<sub>0,W</sub>, rated against your limits.</p>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+<footer>STAIRlab · UC Berkeley · Richmond Field Station · source data: <a href="https://github.com/k-mosalam/solar-energy-testbed" target="_blank" rel="noopener">solar-energy-testbed</a></footer>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

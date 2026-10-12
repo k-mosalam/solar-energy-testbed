@@ -1,0 +1,95 @@
+{
+  "name": "STAIRlab PV testbed, Richmond Field Station (UC Berkeley)",
+  "latitude": 37.915,
+  "longitude": -122.335,
+  "locationBasis": "Approximate RFS coordinates; not a surveyed panel position.",
+  "timezone": "America/Los_Angeles",
+  "altitudeM": 10,
+  "arrayAzimuth": 180,
+  "orientationBasis": "Protocol orientation: both frames face due south. The LiDAR scan is not georeferenced, so each session is rotated so Frame A's plane normal points south; the relative positions and tilts are exactly as scanned.",
+  "albedo": 0.2,
+  "linkeMonthly": [
+    3.25,
+    3.2,
+    3.15,
+    3.2,
+    3.45,
+    3.45,
+    3.55,
+    3.5,
+    3.35,
+    3.15,
+    3.1,
+    2.95
+  ],
+  "linkeBasis": "Monthly Linke turbidity climatology at the site (pvlib LinkeTurbidities.h5), interpolated between mid-month values; checked by tools/make_reference.py.",
+  "module": {
+    "name": "First Solar Series 6 Plus (CdTe thin film)",
+    "lengthM": 2.024,
+    "widthM": 1.245,
+    "perFrame": 2,
+    "layout": "Two portrait modules side by side, wired as one series string per frame; no bypass diodes."
+  },
+  "calibration": {
+    "record": "goodwe-2026-08-19.json",
+    "window": [
+      "11:40",
+      "13:50"
+    ],
+    "stepMinutes": 10,
+    "frame": "A",
+    "basis": "Least-squares scale between the 14 ten-minute PV readings 11:40-13:50 on 19 Aug 2026 (one string on MPPT 1) and modelled clear-sky plane-of-array irradiance. Outside that window the string output was clamped near 35 W by the off-grid system, so the rest of the day is not used."
+  },
+  "frameRatioDefault": 0.99,
+  "frameRatioBasis": "k = test-frame / reference-frame unshaded output. The thesis estimates k from paired unshaded days (about 0.98); 0.99 is the default here and is editable.",
+  "testedWindowElevationDeg": 20,
+  "ratingThresholdsPct": [
+    10,
+    20,
+    30
+  ],
+  "stepMinutes": 5,
+  "racks": {
+    "basis": "Measured from the raw LiDAR scans (tools/verify_geometry.py notes): base rails at 0.08-0.22 m height and post centres, world coordinates (Frame A lower-edge midpoint = origin, x east, y north). Frame B's rack is identical in all three sessions.",
+    "A": {
+      "baseX": [
+        -1.32,
+        1.32
+      ],
+      "baseY": [
+        0.13,
+        1.42
+      ],
+      "posts": [
+        [
+          -1.26,
+          0.79
+        ],
+        [
+          1.27,
+          0.79
+        ]
+      ]
+    },
+    "B": {
+      "baseX": [
+        2.1,
+        5.01
+      ],
+      "baseY": [
+        0.24,
+        1.56
+      ],
+      "posts": [
+        [
+          2.14,
+          0.92
+        ],
+        [
+          4.96,
+          0.92
+        ]
+      ]
+    }
+  }
+}
