@@ -481,8 +481,14 @@ export class Scene3D {
       wheel.castShadow = true; group.add(wheel);
       group.add(tubeBetween([x, y, 0.09], [x, y, railZ - tube / 2], 0.02, this.shared.aluminium));
     }
-    // Posts to the pivot, back braces, pivot brackets.
-    const tops = r.posts.map(([x, y]) => [x, y, planeZ(x, y) - 0.1]);
+    // Pivot axle (torque tube) sits behind the modules: its centre is a fixed distance behind the glass,
+    // measured along the panel normal, so it clears the module rails at every tilt. Solving for the
+    // height directly above each post keeps the posts vertical.
+    const axleR = f.id === 'B' ? 0.055 : 0.03;
+    const railBack = 0.07 + 0.02; // rails behind the modules: centre 7 cm behind the glass, 4 cm square
+    const axleZ = (x, y) => planeZ(x, y) - (railBack + axleR) / f.normal[2];
+    // Posts to the pivot, back braces, pivot brackets (bracket top meets the underside of the axle).
+    const tops = r.posts.map(([x, y]) => [x, y, axleZ(x, y) - axleR - 0.06]);
     for (const [k, [x, y]] of r.posts.entries()) {
       const top = tops[k];
       group.add(tubeBetween([x, y, railZ], top, 0.055, mat));
@@ -491,9 +497,9 @@ export class Scene3D {
     }
     // Pivot axle between the posts (Frame B: the long grey pipe seen in the photo) and rails behind the modules.
     const ext = f.id === 'B' ? 0.45 : 0.05;
-    const a0 = [tops[0][0] - ext, tops[0][1], tops[0][2] + 0.04], a1 = [tops[1][0] + ext, tops[1][1], tops[1][2] + 0.04];
-    if (f.id === 'B') group.add(cylinderBetween(a0, a1, 0.055, 0.055, this.shared.pipe, 16));
-    else group.add(tubeBetween(a0, a1, 0.06, mat));
+    const a0 = [tops[0][0] - ext, tops[0][1], axleZ(...r.posts[0])], a1 = [tops[1][0] + ext, tops[1][1], axleZ(...r.posts[1])];
+    if (f.id === 'B') group.add(cylinderBetween(a0, a1, axleR, axleR, this.shared.pipe, 16));
+    else group.add(tubeBetween(a0, a1, axleR * 2, mat));
     const nOff = scale(f.normal, -0.07);
     for (const u of [0.25, f.width - 0.25, f.width / 2]) {
       group.add(tubeBetween(add(f.point(u, 0.08), nOff), add(f.point(u, f.slope - 0.08), nOff), 0.04, mat));
